@@ -18,27 +18,37 @@ def main():
             data = response.json()
         except Exception as e:
             print(f"[ERROR] Failed to fetch or parse signal: {e}")
-            return  # exit this loop iteration safely
-        
+            time.sleep(POLL_INTERVAL)
+            continue  # retry next loop iteration
+
         try:
             signal = data.get("signal")
             pair = data.get("pair")
             print(f"[DEBUG] Received signal: {signal}, pair: {pair}")
-        
+
             if pair != SYMBOL:
                 print(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
-                return
-        
+                time.sleep(POLL_INTERVAL)
+                continue
+
             if not signal or bot.active_position:
                 print("[IDLE] No signal or already in position.")
-                return
+                # Log portfolio state even during idle
+                portfolio_value, usdt, pi, price = bot.get_portfolio_value()
+                print(f"[PORTFOLIO] Total: ${portfolio_value:.2f}, USDT: {usdt:.4f}, PI: {pi:.4f} @ Price: ${price:.4f}")
+                time.sleep(POLL_INTERVAL)
+                continue
 
-            price = bot.get_portfolio_value()[-1]  # Get the current price from portfolio value
+            # Use latest price to open a position
+            price = bot.get_portfolio_value()[-1]
             bot.open_position(signal, price)
-        
+
+            # Log portfolio after action
+            portfolio_value, usdt, pi, price = bot.get_portfolio_value()
+            print(f"[PORTFOLIO] Total: ${portfolio_value:.2f}, USDT: {usdt:.4f}, PI: {pi:.4f} @ Price: ${price:.4f}")
+
         except Exception as e:
             print(f"[ERROR] Main loop logic failed: {e}")
-
 
         time.sleep(POLL_INTERVAL)
 
