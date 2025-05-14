@@ -6,6 +6,7 @@ from config import SIGNAL_SERVER_URL, SYMBOL
 
 bot = TradingBot()
 client = OKXClient()
+client.test_connection()
 
 POLL_INTERVAL = 10  # seconds
 
