@@ -31,8 +31,9 @@ def main():
             if not signal or bot.active_position:
                 print("[IDLE] No signal or already in position.")
                 return
-        
-            bot.execute_trade(signal)
+
+            price = bot.get_portfolio_value()[-1]  # Get the current price from portfolio value
+            bot.bot.open_position(signal, price)
         
         except Exception as e:
             print(f"[ERROR] Main loop logic failed: {e}")
