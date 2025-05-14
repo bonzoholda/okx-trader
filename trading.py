@@ -45,6 +45,10 @@ class TradingBot:
             self.trailing_tp = price * (1 + TP_THRESHOLD)
             print(f"[LONG] Opened at {price}")
 
+        elif signal == "long" and usdt < 0.3 * portfolio_value:
+            print(f"Skipped trade, not enough USDT to buy")
+            resume
+            
         elif signal == "short" and pi * price >= 0.3 * portfolio_value:
             amount = self.calculate_amount(ORDER_PERCENT, price)
             client.place_order("short", amount)
@@ -52,7 +56,11 @@ class TradingBot:
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
             print(f"[SHORT] Opened at {price}")
-
+        
+        elif signal == "short" and pi * price < 0.3 * portfolio_value:
+            print(f"Skipped trade, not enough PI to sell")
+            resume
+    
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
