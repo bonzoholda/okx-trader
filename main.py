@@ -1,56 +1,96 @@
 import time
+import threading
 from trading import TradingBot
 from client import OKXClient
 import requests
 from config import SIGNAL_SERVER_URL, SYMBOL
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+import uvicorn
+import asyncio
 
 bot = TradingBot()
 client = OKXClient()
 client.test_connection()
 
 POLL_INTERVAL = 10  # seconds
+log_queue = asyncio.Queue()
 
-def main():
+app = FastAPI()
+
+# Allow CORS for local testing or frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/stats")
+def get_stats():
+    total, usdt, pi, price = bot.get_portfolio_value()
+    return {
+        "total": round(total, 4),
+        "usdt": round(usdt, 4),
+        "pi": round(pi, 4),
+        "price": round(price, 4)
+    }
+
+@app.get("/logs")
+async def stream_logs():
+    async def event_generator():
+        while True:
+            message = await log_queue.get()
+            yield f"data: {message}\n\n"
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+def log_event(msg: str):
+    print(msg)
+    asyncio.run(log_queue.put(msg))
+
+def bot_loop():
     print("🚀 OKX Trader bot started.")
     while True:
         try:
             response = requests.get(SIGNAL_SERVER_URL)
             data = response.json()
         except Exception as e:
-            print(f"[ERROR] Failed to fetch or parse signal: {e}")
+            log_event(f"[ERROR] Failed to fetch or parse signal: {e}")
             time.sleep(POLL_INTERVAL)
-            continue  # retry next loop iteration
-
+            continue
+        
         try:
             signal = data.get("signal")
             pair = data.get("pair")
-            print(f"[DEBUG] Received signal: {signal}, pair: {pair}")
-
+            log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
+        
             if pair != SYMBOL:
-                print(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
+                log_event(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
                 time.sleep(POLL_INTERVAL)
                 continue
-
+        
             if not signal or bot.active_position:
-                print("[IDLE] No signal or already in position.")
-                # Log portfolio state even during idle
-                portfolio_value, usdt, pi, price = bot.get_portfolio_value()
-                print(f"[PORTFOLIO] Total: ${portfolio_value:.2f}, USDT: {usdt:.4f}, PI: {pi:.4f} @ Price: ${price:.4f}")
+                log_event("[IDLE] No signal or already in position.")
                 time.sleep(POLL_INTERVAL)
                 continue
 
-            # Use latest price to open a position
             price = bot.get_portfolio_value()[-1]
             bot.open_position(signal, price)
-
-            # Log portfolio after action
-            portfolio_value, usdt, pi, price = bot.get_portfolio_value()
-            print(f"[PORTFOLIO] Total: ${portfolio_value:.2f}, USDT: {usdt:.4f}, PI: {pi:.4f} @ Price: ${price:.4f}")
-
+        
         except Exception as e:
-            print(f"[ERROR] Main loop logic failed: {e}")
-
+            log_event(f"[ERROR] Main loop logic failed: {e}")
+        
         time.sleep(POLL_INTERVAL)
 
+def start_api():
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# Entry point
 if __name__ == "__main__":
-    main()
+    # Start FastAPI in a separate thread
+    threading.Thread(target=start_api, daemon=True).start()
+
+    # Start the bot loop in main thread
+    bot_loop()
