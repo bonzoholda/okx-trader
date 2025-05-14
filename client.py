@@ -42,8 +42,8 @@ class OKXClient:
     def _request(self, method, path, params=None, body=None):
         url = self.base_url + path
         body_json = json.dumps(body) if body else ""
-        timestamp = self._get_timestamp()
-        headers = self._auth_headers(timestamp, method, path, body_json)
+
+        headers = self._auth_headers(method, path, body_json)
 
         try:
             if method == "GET":
