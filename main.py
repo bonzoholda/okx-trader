@@ -1,6 +1,8 @@
 import time
 from trading import TradingBot
 from client import OKXClient
+import requests
+from config import SIGNAL_SERVER_URL, SYMBOL
 
 bot = TradingBot()
 client = OKXClient()
@@ -11,7 +13,7 @@ def main():
     print("🚀 OKX Trader bot started.")
     while True:
         try:
-            response = requests.get(SIGNAL_API_URL)
+            response = requests.get(SIGNAL_SERVER_URL)
             data = response.json()
         except Exception as e:
             print(f"[ERROR] Failed to fetch or parse signal: {e}")
