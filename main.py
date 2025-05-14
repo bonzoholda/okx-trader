@@ -28,7 +28,7 @@ def main():
                 print(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
                 return
         
-            if not signal or bot.position_active:
+            if not signal or bot.active_position:
                 print("[IDLE] No signal or already in position.")
                 return
         
