@@ -15,8 +15,8 @@ SIGNAL_SERVER_URL = "https://okx-signal-server.up.railway.app/api/signal"
 
 # === Trading Settings ===
 SYMBOL = "PI-USDT"              # Market pair (spot)
-BASE_ASSET = "USDT"
-QUOTE_ASSET = "PI"
+BASE_CURRENCY = "USDT"
+QUOTE_CURRENCY = "PI"
 
 ORDER_PERCENTAGE = 0.12         # 12% of portfolio for initial entry
 DCA_PERCENTAGE = 0.18           # 18% for DCA on SL trigger
