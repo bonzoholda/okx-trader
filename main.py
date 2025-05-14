@@ -12,6 +12,8 @@ def main():
     while True:
         try:
             signal = bot.fetch_signal()
+            print(f"Fetched signal: {data}")
+            print(f"Bot symbol: {SYMBOL}, Signal pair: {pair}")
             price = client.get_price()
 
             if not bot.active_position and signal in ["long", "short"]:
@@ -19,6 +21,7 @@ def main():
             elif bot.active_position:
                 bot.check_tp_sl(price)
             else:
+                print(f"Position active: {bot.position_active}, Signal: {signal}")
                 print("[IDLE] No signal or already in position.")
 
         except Exception as e:
