@@ -108,7 +108,7 @@ def bot_loop():
                 log_event("[IDLE] Already in position. Skipping signal.")
                 price = bot.get_portfolio_value()[-1]
                 bot.check_tp_sl(price)
-                log_event({msg})
+                log_event(msg)
                 time.sleep(POLL_INTERVAL)
                 continue
         
