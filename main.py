@@ -62,8 +62,9 @@ async def stream_logs():
 def log_event(msg: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     full_msg = f"[{timestamp}] {msg}"
-    print(full_msg)    
-    asyncio.run(log_queue.put(full_msg)
+    print(full_msg)
+    asyncio.run(log_queue.put(full_msg))
+
 
 def bot_loop():
     print("🚀 OKX Trader bot started.")
