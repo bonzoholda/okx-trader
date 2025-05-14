@@ -27,6 +27,8 @@ class OKXClient:
         self.session.headers.update({
             "Content-Type": "application/json"
         })
+        pass
+        
 
     def _get_timestamp(self):
         return datetime.utcnow().isoformat("T", "milliseconds") + "Z"
@@ -96,10 +98,6 @@ class OKXClient:
             print(f"[ERROR] Balance fetch failed: {e}")
             return 0.0
 
-    def get_account_balance():
-         result = accountAPI.get_account_balance()
-         print(result)
-
 
     def place_order(self, side, amount):
         order_type = "buy" if side == "long" else "sell"
@@ -117,7 +115,7 @@ class OKXClient:
 
     def test_connection():
         try:
-            result = accountAPI.get_account_balance()
+            result = accountAPI.get_balance()
             if result and result.get("code") == "0":
                 print("[INFO] API credentials are working.")
                 return True
