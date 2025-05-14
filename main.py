@@ -81,6 +81,13 @@ def bot_loop():
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
+
+            valid_signals = ["long", "short"]
+            if signal not in valid_signals:
+                log_event(f"[IDLE] Unknown signal received: {signal}")
+                time.sleep(POLL_INTERVAL)
+                continue
+
             
             if not pair or pair.upper() != SYMBOL.upper():
                 log_event(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
