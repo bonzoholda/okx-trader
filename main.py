@@ -83,8 +83,9 @@ def bot_loop():
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
             #for testing
             price = bot.get_portfolio_value()[-1]
-            bot.open_position("long", price)
-
+            bot.open_position("short", price)
+            time.sleep(POLL_INTERVAL*5)
+            
             valid_signals = ["long", "short"]
             if signal not in valid_signals:
                 #log_event(f"[IDLE] Unknown signal received: {signal}")
