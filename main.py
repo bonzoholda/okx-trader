@@ -108,7 +108,9 @@ def bot_loop():
                 log_event("[IDLE] Already in position. Skipping signal.")
                 price = bot.get_portfolio_value()[-1]
                 bot.check_tp_sl(price)
-                log_event(msg)
+                msg=bot.check_tp_sl(price)
+                if mssg:
+                    log_event(msg)
                 time.sleep(POLL_INTERVAL)
                 continue
         
@@ -121,7 +123,10 @@ def bot_loop():
             if not bot.active_position:
                 log_event(f"[TRADE] Executing {signal.upper()} for {SYMBOL.upper()} at price: {price}")
                 bot.open_position(signal, price)
-        
+                msg = bot.open_position(signal, price)
+                if msg:
+                    log_event(msg)
+
         except Exception as e:
             log_event(f"[ERROR] Main loop logic failed: {e}")
 
