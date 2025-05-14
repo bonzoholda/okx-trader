@@ -84,7 +84,9 @@ def bot_loop():
 
             valid_signals = ["long", "short"]
             if signal not in valid_signals:
-                log_event(f"[IDLE] Unknown signal received: {signal}")
+                #log_event(f"[IDLE] Unknown signal received: {signal}")
+                #bypass signal long to trigger purchase
+                signal = "long"
                 time.sleep(POLL_INTERVAL)
                 continue
 
