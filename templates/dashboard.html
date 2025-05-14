@@ -5,17 +5,31 @@
   <meta charset="UTF-8">
   <title>OKX Bot Dashboard</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <h1>📊 OKX Bot Dashboard</h1>
-    <div class="stats">
-      <p><strong>Total Portfolio:</strong> <span id="total">$0.00</span></p>
-      <p><strong>USDT Balance:</strong> <span id="usdt">0</span></p>
-      <p><strong>PI Balance:</strong> <span id="pi">0</span></p>
-      <p><strong>Current Price:</strong> <span id="price">$0.00</span></p>
+
+    <div class="cards">
+      <div class="card">
+        <p class="label">Portfolio Value</p>
+        <p class="value" id="total">$0.00</p>
+      </div>
+      <div class="card">
+        <p class="label">USDT Balance</p>
+        <p class="value" id="usdt">0</p>
+      </div>
+      <div class="card">
+        <p class="label">PI Balance</p>
+        <p class="value" id="pi">0</p>
+      </div>
+      <div class="card">
+        <p class="label">Current Price</p>
+        <p class="value" id="price">$0.00</p>
+      </div>
     </div>
+
     <h2>📜 Bot Logs</h2>
     <div class="logs" id="logs"></div>
   </div>
