@@ -33,7 +33,7 @@ def main():
                 return
 
             price = bot.get_portfolio_value()[-1]  # Get the current price from portfolio value
-            bot.bot.open_position(signal, price)
+            bot.open_position(signal, price)
         
         except Exception as e:
             print(f"[ERROR] Main loop logic failed: {e}")
