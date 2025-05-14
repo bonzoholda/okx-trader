@@ -111,9 +111,10 @@ def bot_loop():
                 log_event("[ERROR] Failed to fetch price. Skipping trade.")
                 time.sleep(POLL_INTERVAL)
                 continue
-        
-            log_event(f"[TRADE] Executing {signal.upper()} for {SYMBOL.upper()} at price: {price}")
-            bot.open_position(signal, price)
+
+            if not bot.active_position:
+                log_event(f"[TRADE] Executing {signal.upper()} for {SYMBOL.upper()} at price: {price}")
+                bot.open_position(signal, price)
         
         except Exception as e:
             log_event(f"[ERROR] Main loop logic failed: {e}")
