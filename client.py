@@ -83,3 +83,12 @@ class OKXClient:
 
     def get_position_size(self, currency):
         return self.get_balance(currency)
+
+    def test_connection(self):
+        print("[INFO] Testing OKX API credentials...")
+        try:
+            balance = self.get_balance("USDT")
+            print(f"[SUCCESS] API credentials are working. Available USDT balance: {balance}")
+        except Exception as e:
+            print(f"[FAILURE] API credentials test failed: {e}")
+
