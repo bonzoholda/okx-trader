@@ -50,6 +50,7 @@
       text-align: center;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s ease;
+      flex: 1 1 calc(50% - 1rem); /* Two per row on wider screens */
     }
 
     .card:hover {
@@ -84,9 +85,11 @@
       white-space: pre-wrap;
     }
 
+
+    
     @media (max-width: 600px) {
       .card {
-        min-width: 100%;
+        flex: 1 1 100%; /* Full width on mobile */
       }
 
       .header {
