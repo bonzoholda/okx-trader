@@ -1,34 +1,58 @@
 /* static/style.css */
 body {
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background: #1e1b2f;
-  color: #e0d5f7;
-  padding: 2rem;
+  font-family: 'Exo 2', sans-serif;
+  background: linear-gradient(to right, #1f0036, #2d1c59);
+  color: #f2eaff;
   margin: 0;
+  padding: 2rem;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 640px;
   margin: auto;
-  background: #2c2344;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(165, 105, 189, 0.3);
+  box-shadow: 0 10px 25px rgba(128, 0, 255, 0.2);
 }
 
 h1, h2 {
-  color: #c59dfd;
+  color: #e3d0ff;
+  text-align: center;
+  margin-top: 0;
 }
 
-.stats p, .logs p {
-  margin: 0.5rem 0;
+.stats {
+  margin-bottom: 2rem;
+}
+
+.stats p {
+  font-size: 1.1rem;
+  margin: 0.4rem 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 4px;
 }
 
 .logs {
-  background: #120f1f;
-  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
+  padding: 1rem;
   height: 300px;
-  overflow-y: scroll;
+  overflow-y: auto;
   font-family: monospace;
+  font-size: 0.9rem;
+  color: #dcd6ff;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.logs p {
+  margin: 0.2rem 0;
+}
+
+span {
+  font-weight: 600;
+  color: #ffd6ff;
 }
