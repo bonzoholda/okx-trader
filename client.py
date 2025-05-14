@@ -26,11 +26,11 @@ class OKXClient:
         self.session.headers.update({
             "Content-Type": "application/json"
         })
-        
+
     def test_connection(self):
         try:
-            # Fetch account assets
-            result = accountAPI.get_account_assets()
+            # Fetch balance info using get_balance instead of get_account_assets
+            result = accountAPI.get_balance()
             
             # Print the result
             print(result)
@@ -39,7 +39,7 @@ class OKXClient:
             if result and result.get("code") == "0":
                 print("[INFO] API credentials are working.")
                 
-                # Parse the balance data
+                # Parse and print asset balances
                 for asset in result['data']:
                     print(f"Asset: {asset['coin']}, Available Balance: {asset['available']}")
                 
@@ -73,7 +73,7 @@ class OKXClient:
     def _request(self, method, path, params=None, body=None):
         url = self.base_url + path
         body_json = json.dumps(body) if body else ""
-        headers = self._auth_headers(method, path, body_json)
+        headers = self._auth_headers(self._get_timestamp(), method, path, body_json)  # Fix this call
 
         try:
             if method == "GET":
@@ -98,7 +98,7 @@ class OKXClient:
         method = "GET"
         path = f"/api/v5/account/balance?ccy={currency}"
         url = self.base_url + path
-        headers = self._auth_headers(method, path)
+        headers = self._auth_headers(self._get_timestamp(), method, path)  # Fix this call
 
         try:
             res = self.session.get(url, headers=headers)
@@ -116,7 +116,6 @@ class OKXClient:
         except Exception as e:
             print(f"[ERROR] Balance fetch failed: {e}")
             return 0.0
-
 
     def place_order(self, side, amount):
         order_type = "buy" if side == "long" else "sell"
