@@ -56,7 +56,8 @@ class TradingBot:
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-
+         print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} ")
+        
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
