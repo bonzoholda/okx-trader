@@ -7,6 +7,12 @@ import requests
 from datetime import datetime
 from config import OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE, OKX_BASE_URL, SYMBOL
 import os
+import okx.Account as Account
+
+# Set flag to "0" for live trading or "1" for demo trading
+flag = "0"
+
+accountAPI = Account.AccountAPI(OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE, False, flag)
 
 class OKXClient:
 
@@ -90,6 +96,10 @@ def _request(self, method, path, params=None, body=None):
             print(f"[ERROR] Balance fetch failed: {e}")
             return 0.0
 
+    def get_account_balance():
+         result = accountAPI.get_account_balance()
+         print(result)
+
 
     def place_order(self, side, amount):
         order_type = "buy" if side == "long" else "sell"
@@ -105,29 +115,19 @@ def _request(self, method, path, params=None, body=None):
     def get_position_size(self, currency):
         return self.get_balance(currency)
 
-    def test_connection(self):
-        try:
-            print("[INFO] Testing OKX API credentials...")
-    
-            # Simulate a simple request to get the balance
-            method = "GET"
-            path = "/api/v5/account/balance?ccy=USDT"  # The correct API path for balance
-            body = ""
-    
-            # We call _auth_headers with the required arguments
-            headers = self._auth_headers(method, path, body)
-            
-            # Send a request using the headers to test connection
-            response = self.session.get(self.base_url + path, headers=headers)
-            response.raise_for_status()
-    
-            # If everything is fine, parse and return balance
-            data = response.json()
-            available_balance = float(data["data"][0]["details"][0]["availBal"])
-            print(f"[SUCCESS] API credentials are working. Available USDT balance: {available_balance}")
-    
-        except Exception as e:
-            print(f"[FAILURE] API credentials test failed: {e}")
+   def test_connection():
+       try:
+           result = accountAPI.get_account_balance()
+           if result and result.get("code") == "0":
+               print("[INFO] API credentials are working.")
+               return True
+           else:
+               print("[ERROR] API credentials test failed.")
+               return False
+       except Exception as e:
+           print(f"[ERROR] Test connection failed: {e}")
+           return False
+   
 
 
 
