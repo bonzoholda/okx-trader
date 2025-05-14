@@ -23,9 +23,11 @@ class OKXClient:
         return datetime.utcnow().isoformat("T", "milliseconds") + "Z"
 
     def _sign(self, timestamp, method, request_path, body=""):
+        method = method.upper()
         message = f"{timestamp}{method}{request_path}{body}"
         mac = hmac.new(self.api_secret.encode(), message.encode(), hashlib.sha256)
         return base64.b64encode(mac.digest()).decode()
+
 
     def _auth_headers(self, timestamp, method, path, body=""):
         sign = self._sign(timestamp, method, path, body)
