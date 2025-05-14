@@ -103,6 +103,7 @@ def bot_loop():
                
             if bot.active_position:
                 log_event("[IDLE] Already in position. Skipping signal.")
+                bot.check_tp_sl(price)
                 time.sleep(POLL_INTERVAL)
                 continue
         
