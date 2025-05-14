@@ -24,8 +24,8 @@ class TradingBot:
         return None
 
     def get_portfolio_value(self):
-        pi = client.get_balance(BASE_CURRENCY)       # e.g. PI
-        usdt = client.get_balance(QUOTE_CURRENCY)    # e.g. USDT
+        pi = client.get_balance(QUOTE_CURRENCY)       # e.g. PI
+        usdt = client.get_balance(BASE_CURRENCY)    # e.g. USDT
         price = client.get_price()
         return usdt + (pi * price), usdt, pi, price
 
