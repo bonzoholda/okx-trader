@@ -106,7 +106,7 @@ class OKXClient:
             data = res.json()
 
             # For debugging
-            print(f"[DEBUG] Raw balance data for {currency}: {json.dumps(data, indent=2)}")
+            #print(f"[DEBUG] Raw balance data for {currency}: {json.dumps(data, indent=2)}")
 
             details = data["data"][0].get("details", [])
             for item in details:
