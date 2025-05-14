@@ -84,9 +84,14 @@ def bot_loop():
             
             valid_signals = ["long", "short"]
             if signal not in valid_signals:
-                log_event(f"[IDLE] Unknown signal received: {signal}")
-                time.sleep(POLL_INTERVAL)
-                continue
+                if signal == "long-divergence":
+                    signal = "long"
+                elif signal == "short-divergence":
+                    signal = "short"
+                else
+                    log_event(f"[IDLE] Unknown signal received: {signal}")
+                    time.sleep(POLL_INTERVAL)
+                    continue
 
             
             if not pair or pair.upper() != SYMBOL.upper():
