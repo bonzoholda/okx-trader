@@ -65,10 +65,28 @@ class OKXClient:
 
     # === PRIVATE APIs ===
     def get_balance(self, currency):
-        response = self._request("GET", f"/api/v5/account/balance", params={"ccy": currency})
-        if response and response.get("data") and response["data"][0]["details"]:
-            return float(response["data"][0]["details"][0]["availBal"])
-        return 0.0
+        method = "GET"
+        path = f"/api/v5/account/balance?ccy={currency}"
+        url = self.base_url + path
+        headers = self._auth_headers(method, path)
+
+        try:
+            res = self.session.get(url, headers=headers)
+            res.raise_for_status()
+            data = res.json()
+
+            # For debugging
+            print(f"[DEBUG] Raw balance data for {currency}: {json.dumps(data, indent=2)}")
+
+            details = data["data"][0].get("details", [])
+            for item in details:
+                if item["ccy"] == currency:
+                    return float(item["availBal"])
+            return 0.0
+        except Exception as e:
+            print(f"[ERROR] Balance fetch failed: {e}")
+            return 0.0
+
 
     def place_order(self, side, amount):
         order_type = "buy" if side == "long" else "sell"
