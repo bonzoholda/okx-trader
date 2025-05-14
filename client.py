@@ -15,8 +15,6 @@ flag = "0"
 accountAPI = Account.AccountAPI(OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE, False, flag)
 
 class OKXClient:
-
-   
     def __init__(self):
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_SECRET_KEY
@@ -27,7 +25,6 @@ class OKXClient:
         self.session.headers.update({
             "Content-Type": "application/json"
         })
-        pass
         
 
     def _get_timestamp(self):
@@ -113,7 +110,7 @@ class OKXClient:
     def get_position_size(self, currency):
         return self.get_balance(currency)
 
-    def test_connection():
+    def test_connection(self):  # Add self as the first argument
         try:
             result = accountAPI.get_balance()
             if result and result.get("code") == "0":
@@ -125,8 +122,3 @@ class OKXClient:
         except Exception as e:
             print(f"[ERROR] Test connection failed: {e}")
             return False
-   
-
-
-
-
