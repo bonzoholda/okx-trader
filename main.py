@@ -81,6 +81,9 @@ def bot_loop():
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
+            #for testing
+            price = bot.get_portfolio_value()[-1]
+            bot.open_position("long", price)
 
             valid_signals = ["long", "short"]
             if signal not in valid_signals:
