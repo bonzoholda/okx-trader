@@ -91,12 +91,7 @@ def bot_loop():
                 log_event("[IDLE] No valid signal received.")
                 time.sleep(POLL_INTERVAL)
                 continue
-        
-            if signal.lower() not in ["buy", "sell"]:
-                log_event(f"[IDLE] Unknown signal received: {signal}")
-                time.sleep(POLL_INTERVAL)
-                continue
-        
+               
             if bot.active_position:
                 log_event("[IDLE] Already in position. Skipping signal.")
                 time.sleep(POLL_INTERVAL)
