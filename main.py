@@ -81,22 +81,39 @@ def bot_loop():
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
-        
-            if pair != SYMBOL:
+            
+            if not pair or pair.upper() != SYMBOL.upper():
                 log_event(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
                 time.sleep(POLL_INTERVAL)
                 continue
         
-            if not signal or bot.active_position:
-                log_event("[IDLE] No signal or already in position.")
+            if not signal:
+                log_event("[IDLE] No valid signal received.")
                 time.sleep(POLL_INTERVAL)
                 continue
-
+        
+            if signal.lower() not in ["buy", "sell"]:
+                log_event(f"[IDLE] Unknown signal received: {signal}")
+                time.sleep(POLL_INTERVAL)
+                continue
+        
+            if bot.active_position:
+                log_event("[IDLE] Already in position. Skipping signal.")
+                time.sleep(POLL_INTERVAL)
+                continue
+        
             price = bot.get_portfolio_value()[-1]
+            if not price:
+                log_event("[ERROR] Failed to fetch price. Skipping trade.")
+                time.sleep(POLL_INTERVAL)
+                continue
+        
+            log_event(f"[TRADE] Executing {signal.upper()} for {SYMBOL.upper()} at price: {price}")
             bot.open_position(signal, price)
         
         except Exception as e:
             log_event(f"[ERROR] Main loop logic failed: {e}")
+
         
         time.sleep(POLL_INTERVAL)
 
