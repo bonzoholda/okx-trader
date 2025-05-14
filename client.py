@@ -12,6 +12,7 @@ import okx.Account as Account
 # Set flag to "0" for live trading or "1" for demo trading
 flag = "0"
 
+# Initialize the Account API client
 accountAPI = Account.AccountAPI(OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE, False, flag)
 
 class OKXClient:
@@ -26,6 +27,29 @@ class OKXClient:
             "Content-Type": "application/json"
         })
         
+    def test_connection(self):
+        try:
+            # Fetch account assets
+            result = accountAPI.get_account_assets()
+            
+            # Print the result
+            print(result)
+            
+            # Check if API credentials are working
+            if result and result.get("code") == "0":
+                print("[INFO] API credentials are working.")
+                
+                # Parse the balance data
+                for asset in result['data']:
+                    print(f"Asset: {asset['coin']}, Available Balance: {asset['available']}")
+                
+                return True
+            else:
+                print("[ERROR] API credentials test failed.")
+                return False
+        except Exception as e:
+            print(f"[ERROR] Test connection failed: {e}")
+            return False
 
     def _get_timestamp(self):
         return datetime.utcnow().isoformat("T", "milliseconds") + "Z"
@@ -35,7 +59,6 @@ class OKXClient:
         message = f"{timestamp}{method}{request_path}{body}"
         mac = hmac.new(self.api_secret.encode(), message.encode(), hashlib.sha256)
         return base64.b64encode(mac.digest()).decode()
-
 
     def _auth_headers(self, timestamp, method, path, body=""):
         sign = self._sign(timestamp, method, path, body)
@@ -51,7 +74,7 @@ class OKXClient:
         url = self.base_url + path
         body_json = json.dumps(body) if body else ""
         headers = self._auth_headers(method, path, body_json)
-      
+
         try:
             if method == "GET":
                 response = self.session.get(url, params=params, headers=headers)
@@ -62,7 +85,6 @@ class OKXClient:
         except Exception as e:
             print(f"[ERROR] API request failed: {e}")
             return None
-
 
     # === PUBLIC API ===
     def get_price(self):
@@ -109,16 +131,3 @@ class OKXClient:
 
     def get_position_size(self, currency):
         return self.get_balance(currency)
-
-    def test_connection(self):  # Add self as the first argument
-        try:
-            result = accountAPI.get_balance()
-            if result and result.get("code") == "0":
-                print("[INFO] API credentials are working.")
-                return True
-            else:
-                print("[ERROR] API credentials test failed.")
-                return False
-        except Exception as e:
-            print(f"[ERROR] Test connection failed: {e}")
-            return False
