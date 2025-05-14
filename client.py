@@ -6,8 +6,17 @@ import hashlib
 import requests
 from datetime import datetime
 from config import OKX_API_KEY, OKX_SECRET_KEY, OKX_PASSPHRASE, OKX_BASE_URL, SYMBOL
+import os
 
 class OKXClient:
+
+
+
+    print(f"OKX API Key: {os.environ.get('OKX_API_KEY')}")
+    print(f"OKX API Secret: {os.environ.get('OKX_SECRET_KEY')}")
+    print(f"OKX API Passphrase: {os.environ.get('OKX_PASSPHRASE')}")
+
+    
     def __init__(self):
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_SECRET_KEY
