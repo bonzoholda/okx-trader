@@ -1,0 +1,50 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OKX Bot Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📊 OKX Bot Dashboard</h1>
+    <div class="stats">
+      <p><strong>Total Portfolio:</strong> <span id="total">$0.00</span></p>
+      <p><strong>USDT Balance:</strong> <span id="usdt">0</span></p>
+      <p><strong>PI Balance:</strong> <span id="pi">0</span></p>
+      <p><strong>Current Price:</strong> <span id="price">$0.00</span></p>
+    </div>
+    <h2>📜 Bot Logs</h2>
+    <div class="logs" id="logs"></div>
+  </div>
+
+  <script>
+    async function fetchStats() {
+      try {
+        const res = await fetch("/stats");
+        const data = await res.json();
+        document.getElementById("total").textContent = "$" + data.total;
+        document.getElementById("usdt").textContent = data.usdt;
+        document.getElementById("pi").textContent = data.pi;
+        document.getElementById("price").textContent = "$" + data.price;
+      } catch (e) {
+        console.log("Stats fetch error:", e);
+      }
+    }
+
+    function startLogStream() {
+      const evtSource = new EventSource("/logs");
+      evtSource.onmessage = function (event) {
+        const div = document.getElementById("logs");
+        const p = document.createElement("p");
+        p.textContent = event.data;
+        div.prepend(p);
+      };
+    }
+
+    setInterval(fetchStats, 5000);
+    startLogStream();
+  </script>
+</body>
+</html>
