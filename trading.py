@@ -47,6 +47,7 @@ class TradingBot:
 
         elif signal == "long" and usdt < 0.3 * portfolio_value:
             msg= "Skipped trade, not enough USDT to buy"
+            print(msg)
             return msg
             
         elif signal == "short" and pi * price >= 0.3 * portfolio_value:
@@ -59,6 +60,7 @@ class TradingBot:
         
         elif signal == "short" and pi * price < 0.3 * portfolio_value:
             msg="Skipped trade, not enough PI to sell"
+            print(msg)
             return msg
     
     def check_tp_sl(self, price):
