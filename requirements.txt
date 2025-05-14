@@ -2,3 +2,5 @@ requests
 python-dotenv
 uvicorn
 python-okx
+fastapi
+jinja2
