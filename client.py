@@ -48,21 +48,21 @@ class OKXClient:
             "Content-Type": "application/json"
         }
 
-def _request(self, method, path, params=None, body=None):
-    url = self.base_url + path
-    body_json = json.dumps(body) if body else ""
-    headers = self._auth_headers(method, path, body_json)
-
-    try:
-        if method == "GET":
-            response = self.session.get(url, params=params, headers=headers)
-        else:
-            response = self.session.request(method, url, headers=headers, data=body_json)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        print(f"[ERROR] API request failed: {e}")
-        return None
+    def _request(self, method, path, params=None, body=None):
+        url = self.base_url + path
+        body_json = json.dumps(body) if body else ""
+        headers = self._auth_headers(method, path, body_json)
+      
+        try:
+            if method == "GET":
+                response = self.session.get(url, params=params, headers=headers)
+            else:
+                response = self.session.request(method, url, headers=headers, data=body_json)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"[ERROR] API request failed: {e}")
+            return None
 
 
     # === PUBLIC API ===
@@ -115,18 +115,18 @@ def _request(self, method, path, params=None, body=None):
     def get_position_size(self, currency):
         return self.get_balance(currency)
 
-   def test_connection():
-       try:
-           result = accountAPI.get_account_balance()
-           if result and result.get("code") == "0":
-               print("[INFO] API credentials are working.")
-               return True
-           else:
-               print("[ERROR] API credentials test failed.")
-               return False
-       except Exception as e:
-           print(f"[ERROR] Test connection failed: {e}")
-           return False
+    def test_connection():
+        try:
+            result = accountAPI.get_account_balance()
+            if result and result.get("code") == "0":
+                print("[INFO] API credentials are working.")
+                return True
+            else:
+                print("[ERROR] API credentials test failed.")
+                return False
+        except Exception as e:
+            print(f"[ERROR] Test connection failed: {e}")
+            return False
    
 
 
