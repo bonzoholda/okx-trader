@@ -11,21 +11,30 @@ def main():
     print("🚀 OKX Trader bot started.")
     while True:
         try:
-            signal = bot.fetch_signal()
-            print(f"Fetched signal: {data}")
-            print(f"Bot symbol: {SYMBOL}, Signal pair: {pair}")
-            price = client.get_price()
-
-            if not bot.active_position and signal in ["long", "short"]:
-                bot.open_position(signal, price)
-            elif bot.active_position:
-                bot.check_tp_sl(price)
-            else:
-                print(f"Position active: {bot.position_active}, Signal: {signal}")
-                print("[IDLE] No signal or already in position.")
-
+            response = requests.get(SIGNAL_API_URL)
+            data = response.json()
         except Exception as e:
-            print(f"[ERROR] Main loop failed: {e}")
+            print(f"[ERROR] Failed to fetch or parse signal: {e}")
+            return  # exit this loop iteration safely
+        
+        try:
+            signal = data.get("signal")
+            pair = data.get("pair")
+            print(f"[DEBUG] Received signal: {signal}, pair: {pair}")
+        
+            if pair != SYMBOL:
+                print(f"[IDLE] Signal pair mismatch: {pair} != {SYMBOL}")
+                return
+        
+            if not signal or bot.position_active:
+                print("[IDLE] No signal or already in position.")
+                return
+        
+            bot.execute_trade(signal)
+        
+        except Exception as e:
+            print(f"[ERROR] Main loop logic failed: {e}")
+
 
         time.sleep(POLL_INTERVAL)
 
