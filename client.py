@@ -42,22 +42,22 @@ class OKXClient:
             "Content-Type": "application/json"
         }
 
-    def _request(self, method, path, params=None, body=None):
-        url = self.base_url + path
-        body_json = json.dumps(body) if body else ""
+def _request(self, method, path, params=None, body=None):
+    url = self.base_url + path
+    body_json = json.dumps(body) if body else ""
+    headers = self._auth_headers(method, path, body_json)
 
-        headers = self._auth_headers(method, path, body_json)
+    try:
+        if method == "GET":
+            response = self.session.get(url, params=params, headers=headers)
+        else:
+            response = self.session.request(method, url, headers=headers, data=body_json)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"[ERROR] API request failed: {e}")
+        return None
 
-        try:
-            if method == "GET":
-                response = self.session.get(url, headers=headers, params=params)
-            else:
-                response = self.session.request(method, url, headers=headers, data=body_json)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"[ERROR] API request failed: {e}")
-            return None
 
     # === PUBLIC API ===
     def get_price(self):
