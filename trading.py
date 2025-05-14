@@ -56,7 +56,6 @@ class TradingBot:
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-         print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} ")
         
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
@@ -79,7 +78,9 @@ class TradingBot:
         # --- DCA on SL ---
         if change <= SL_THRESHOLD:
             self.dca_and_close()
-
+            
+        print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} ")
+        
     def close_position(self, side):
         amount = client.get_position_size(BASE_CURRENCY if side == "long" else QUOTE_CURRENCY)
         client.place_order("short" if side == "long" else "long", amount)
