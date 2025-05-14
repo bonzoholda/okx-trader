@@ -105,10 +105,27 @@ class OKXClient:
     def test_connection(self):
         try:
             print("[INFO] Testing OKX API credentials...")
-            balance = self.get_balance("USDT")
-            print(f"[SUCCESS] API credentials are working. Available USDT balance: {balance}")
+    
+            # Simulate a simple request to get the balance
+            method = "GET"
+            path = "/api/v5/account/balance?ccy=USDT"  # The correct API path for balance
+            body = ""
+    
+            # We call _auth_headers with the required arguments
+            headers = self._auth_headers(method, path, body)
+            
+            # Send a request using the headers to test connection
+            response = self.session.get(self.base_url + path, headers=headers)
+            response.raise_for_status()
+    
+            # If everything is fine, parse and return balance
+            data = response.json()
+            available_balance = float(data["data"][0]["details"][0]["availBal"])
+            print(f"[SUCCESS] API credentials are working. Available USDT balance: {available_balance}")
+    
         except Exception as e:
             print(f"[FAILURE] API credentials test failed: {e}")
+
 
 
 
