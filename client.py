@@ -102,11 +102,27 @@ class OKXClient:
     def get_position_size(self, currency):
         return self.get_balance(currency)
 
-    def test_connection(self):
-        print("[INFO] Testing OKX API credentials...")
-        try:
-            balance = self.get_balance("USDT")
-            print(f"[SUCCESS] API credentials are working. Available USDT balance: {balance}")
-        except Exception as e:
-            print(f"[FAILURE] API credentials test failed: {e}")
+def test_connection(self):
+    print("[INFO] Testing OKX API credentials...")
+
+    try:
+        method = "GET"
+        path = "/api/v5/account/balance?ccy=USDT"
+        headers = self._auth_headers(method, path)
+
+        url = self.base_url + path
+        res = self.session.get(url, headers=headers)
+        res.raise_for_status()
+        data = res.json()
+
+        balance = 0.0
+        details = data["data"][0].get("details", [])
+        for item in details:
+            if item["ccy"] == "USDT":
+                balance = float(item["availBal"])
+
+        print(f"[SUCCESS] API credentials are working. Available USDT balance: {balance}")
+    except Exception as e:
+        print(f"[FAILURE] API credentials test failed: {e}")
+
 
