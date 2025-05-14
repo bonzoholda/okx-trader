@@ -97,7 +97,7 @@ def bot_loop():
         time.sleep(POLL_INTERVAL)
 
 def start_api():
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
 
 # Entry point
 if __name__ == "__main__":
