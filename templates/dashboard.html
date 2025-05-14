@@ -11,7 +11,13 @@
       font-family: 'Exo 2', sans-serif;
       background: #000000;
       margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 100%;
       padding: 20px;
+      box-sizing: border-box;
     }
 
     .header {
@@ -50,7 +56,7 @@
       text-align: center;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s ease;
-      flex: 1 1 calc(50% - 1rem); /* Two per row on wider screens */
+      flex: 1 1 calc(50% - 1rem); /* 2 per row on desktop/tablet */
     }
 
     .card:hover {
@@ -66,11 +72,13 @@
     .value {
       font-size: 1.5rem;
       font-weight: bold;
+      color: #ffffff;
     }
 
     h2 {
       text-align: center;
       margin-bottom: 10px;
+      color: #ffffff;
     }
 
     .logs {
@@ -83,17 +91,21 @@
       font-family: monospace;
       font-size: 0.9rem;
       white-space: pre-wrap;
+      color: #00ff99;
     }
 
-
-    
     @media (max-width: 600px) {
+      .container {
+        padding: 12px;
+      }
+
       .card {
         flex: 1 1 100%; /* Full width on mobile */
       }
 
       .header {
         flex-direction: column;
+        text-align: center;
       }
 
       .header img {
@@ -102,41 +114,45 @@
 
       .header h1 {
         font-size: 1.6rem;
-        text-align: center;
+      }
+
+      .logs {
+        max-height: 200px;
+        font-size: 0.8rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="/static/images/pilogo-sm.png" alt="Pi Logo">
-    <h1>OKX Pi TRADER</h1>
+  <div class="container">
+    <div class="header">
+      <img src="/static/images/pilogo-sm.png" alt="Pi Logo">
+      <h1>OKX Pi TRADER</h1>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <p class="label">Portfolio Value</p>
+        <p class="value" id="total">$0.00</p>
+      </div>
+      <div class="card">
+        <p class="label">USDT Balance</p>
+        <p class="value" id="usdt">0</p>
+      </div>
+      <div class="card">
+        <p class="label">PI Balance</p>
+        <p class="value" id="pi">0</p>
+      </div>
+      <div class="card">
+        <p class="label">Current Price</p>
+        <p class="value" id="price">$0.00</p>
+      </div>
+    </div>
+
+    <h2>📜 TRADING BOT LOGS</h2>
+    <div class="logs" id="logs"></div>
   </div>
 
-<div class="container"> 
-  <div class="cards">
-    <div class="card">
-      <p class="label">Portfolio Value</p>
-      <p class="value" id="total">$0.00</p>
-    </div>
-    <div class="card">
-      <p class="label">USDT Balance</p>
-      <p class="value" id="usdt">0</p>
-    </div>
-    <div class="card">
-      <p class="label">PI Balance</p>
-      <p class="value" id="pi">0</p>
-    </div>
-    <div class="card">
-      <p class="label">Current Price</p>
-      <p class="value" id="price">$0.00</p>
-    </div>
-  </div>
-
-  <h2>📜 TRADING BOT LOGS</h2>
-  <div class="logs" id="logs"></div>
-</div>
-  
   <script>
     async function fetchStats() {
       try {
