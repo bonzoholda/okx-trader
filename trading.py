@@ -46,8 +46,8 @@ class TradingBot:
             print(f"[LONG] Opened at {price}")
 
         elif signal == "long" and usdt < 0.3 * portfolio_value:
-            print(f"Skipped trade, not enough USDT to buy")
-            return
+            msg= "Skipped trade, not enough USDT to buy"
+            return msg
             
         elif signal == "short" and pi * price >= 0.3 * portfolio_value:
             amount = self.calculate_amount(ORDER_PERCENT, price)
@@ -58,8 +58,8 @@ class TradingBot:
             print(f"[SHORT] Opened at {price}")
         
         elif signal == "short" and pi * price < 0.3 * portfolio_value:
-            print(f"Skipped trade, not enough PI to sell")
-            return
+            msg="Skipped trade, not enough PI to sell"
+            return msg
     
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
