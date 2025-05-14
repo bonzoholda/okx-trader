@@ -1,7 +1,7 @@
 import time
 from client import OKXClient
 from config import (
-    SIGNAL_API_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
+    SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
     ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER
 )
 
@@ -16,7 +16,7 @@ class TradingBot:
 
     def fetch_signal(self):
         try:
-            res = client.session.get(SIGNAL_API_URL)
+            res = client.session.get(SIGNAL_SERVER_URL)
             if res.status_code == 200:
                 return res.json().get("signal")
         except Exception as e:
