@@ -118,15 +118,20 @@ class OKXClient:
             return 0.0
 
     def place_order(self, side, amount):
-        order_type = "buy" if side == "long" else "sell"
+        print(f"[DEBUG] Placing order: side={side}, amount={amount}")
+    
         body = {
             "instId": SYMBOL,
             "tdMode": "cash",
-            "side": order_type,
+            "side": "buy" if side == "long" else "sell",
             "ordType": "market",
             "sz": str(amount),
         }
-        return self._request("POST", "/api/v5/trade/order", body=body)
+    
+        response = self._request("POST", "/api/v5/trade/order", body=body)
+        print(f"[DEBUG] API response: {response}")
+        return response
+
 
     def get_position_size(self, currency):
         return self.get_balance(currency)
