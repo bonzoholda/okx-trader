@@ -88,7 +88,7 @@ def bot_loop():
                     signal = "long"
                 elif signal == "short-divergence":
                     signal = "short"
-                else
+                else :
                     log_event(f"[IDLE] Unknown signal received: {signal}")
                     time.sleep(POLL_INTERVAL)
                     continue
