@@ -2,7 +2,7 @@ import time
 from client import OKXClient
 from config import (
     SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
-    ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER
+    ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER, TRAIL_BUFFER
 )
 
 client = OKXClient()
@@ -101,11 +101,13 @@ class TradingBot:
             print(msg)
             return msg
     
-        # --- TP reached but not enough for trailing ---
+        # --- TP reached but not enough for full trailing ---
         elif change >= TP_THRESHOLD:
-            # Set static trailing TP to TP level if not already set
             if not self.trailing_tp:
-                self.trailing_tp = price  # lock it here
+                if self.active_position == "long":
+                    self.trailing_tp = price * (1 - TRAIL_BUFFER)
+                else:
+                    self.trailing_tp = price * (1 + TRAIL_BUFFER)
                 msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
                 print(msg)
                 return msg
