@@ -70,34 +70,50 @@ class TradingBot:
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-        
+    
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
-
-        # --- Trailing TP ---
+    
+        # --- Trailing TP logic ---
         if change >= TP_THRESHOLD + TRAIL_TRIGGER:
+            # Update trailing TP
             if self.active_position == "long":
-                self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
+                self.trailing_tp = max(self.trailing_tp or 0, price - TRAIL_TRIGGER * price)
             else:
-                self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
-            msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
+                self.trailing_tp = min(self.trailing_tp or float('inf'), price + TRAIL_TRIGGER * price)
+            msg = f"[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
             return msg
-        elif change < TP_THRESHOLD + TRAIL_TRIGGER:
-            msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
-            print(msg)
-            return msg            
-
-        # --- Close at trailing TP ---
-        if self.active_position == "long" and price < self.trailing_tp:
-            self.close_position("long")
-        elif self.active_position == "short" and price > self.trailing_tp:
-            self.close_position("short")
-
+    
+        # --- TP reached but not enough for trailing ---
+        elif change >= TP_THRESHOLD:
+            # Set static trailing TP to TP level if not already set
+            if not self.trailing_tp:
+                self.trailing_tp = price  # lock it here
+                msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
+                print(msg)
+                return msg
+    
+        # --- Close if price falls back below static/trailing TP ---
+        if self.trailing_tp:
+            if self.active_position == "long" and price < self.trailing_tp:
+                self.close_position("long")
+                return "[CLOSED] Long position closed at trailing TP"
+            elif self.active_position == "short" and price > self.trailing_tp:
+                self.close_position("short")
+                return "[CLOSED] Short position closed at trailing TP"
+    
         # --- DCA on SL ---
         if change <= SL_THRESHOLD:
             self.dca_and_close()
+            return "[DCA] Stop loss triggered"
+    
+        # Monitoring only
+        msg = f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
+        print(msg)
+        return msg
+
             
         
     def close_position(self, side):
