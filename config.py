@@ -28,6 +28,7 @@ TP_THRESHOLD = 0.03          # 3% TP
 SL_THRESHOLD = -0.05           # -5% SL triggers DCA
 TRAIL_TRIGGER = 0.01     # Trailing triggers 1% above TP
 TRAILING_STEP_PCT = 0.005       # Update TP if price rises/falls further
+TRAIL_BUFFER = 0.001  # 0.1%
 
 # === Polling Interval ===
 SIGNAL_CHECK_INTERVAL = 10      # Seconds between signal checks
