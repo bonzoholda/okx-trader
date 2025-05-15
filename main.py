@@ -84,7 +84,7 @@ def bot_loop():
 
             if bot.active_position:
                 log_event("[IDLE] Already in position. Skipping signal.")
-                price = bot.get_current_price()
+                price = client.get_price()
                 msg = bot.check_tp_sl(price)
                 if msg:
                     log_event(msg)
@@ -108,7 +108,7 @@ def bot_loop():
                 time.sleep(POLL_INTERVAL)
                 continue
 
-            price = bot.get_current_price()
+            price = client.get_price()
             if not price:
                 log_event("[ERROR] Failed to fetch price. Skipping trade.")
                 time.sleep(POLL_INTERVAL)
