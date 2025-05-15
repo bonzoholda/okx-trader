@@ -43,7 +43,7 @@ class TradingBot:
             self.active_position = "long"
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
-            msg="[LONG] Opened at {price}"
+            msg=f"[LONG] Opened at {price}"
             print(msg)
             return msg            
 
@@ -81,11 +81,11 @@ class TradingBot:
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
-            msg="[TRAILING] Updated TP: {self.trailing_tp}"
+            msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
             return msg
         elif change < TP_THRESHOLD + TRAIL_TRIGGER:
-            msg="[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
+            msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
             print(msg)
             return msg            
 
@@ -103,7 +103,7 @@ class TradingBot:
     def close_position(self, side):
         amount = client.get_position_size(BASE_CURRENCY if side == "long" else QUOTE_CURRENCY)
         client.place_order("short" if side == "long" else "long", amount)
-        msg="[CLOSE] {side.upper()} closed"
+        msg=f"[CLOSE] {side.upper()} closed"
         print(msg)
         return msg
         self.active_position = None
@@ -115,7 +115,7 @@ class TradingBot:
         dca_amount = self.calculate_amount(DCA_PERCENT, price)
         side = "long" if self.active_position == "long" else "short"
         client.place_order(side, dca_amount)
-        msg="[DCA] Added more to {side} before closing"
+        msg=f"[DCA] Added more to {side} before closing"
         print(msg)
         return msg
         self.close_position(side)
