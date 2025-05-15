@@ -144,4 +144,6 @@ class TradingBot:
         msg=f"[DCA] Added more to {side} before closing"
         print(msg)
         return msg
-        self.close_position(side)
+        self.active_position = None
+        self.entry_price = None
+        self.trailing_tp = None
