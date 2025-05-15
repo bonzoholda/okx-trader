@@ -109,7 +109,7 @@ def bot_loop():
                 price = bot.get_portfolio_value()[-1]
                 bot.check_tp_sl(price)
                 msg=bot.check_tp_sl(price)
-                if mssg:
+                if msg:
                     log_event(msg)
                 time.sleep(POLL_INTERVAL)
                 continue
