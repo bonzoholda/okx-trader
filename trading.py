@@ -36,36 +36,51 @@ class TradingBot:
 
     def open_position(self, signal, price):
         portfolio_value, usdt, pi, _ = self.get_portfolio_value()
-
-        if signal == "long" and usdt >= 0.3 * portfolio_value:
+    
+        # --- LONG ---
+        if signal == "long":
+            if usdt < 0.3 * portfolio_value:
+                msg = "Skipped trade, not enough USDT to buy"
+                print(msg)
+                return msg
+            
             amount = self.calculate_amount(ORDER_PERCENT, price)
-            client.place_order("long", amount)
+            result = client.place_order("long", amount)
+    
+            if result.get("code") != "0":
+                msg = f"[ERROR] LONG order failed: {result.get('msg', 'Unknown error')}"
+                print(msg)
+                return msg
+    
             self.active_position = "long"
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
-            msg=f"[LONG] Opened at {price}"
-            print(msg)
-            return msg            
-
-        elif signal == "long" and usdt < 0.3 * portfolio_value:
-            msg= "Skipped trade, not enough USDT to buy"
+            msg = f"[LONG] Opened at {price}"
             print(msg)
             return msg
-            
-        elif signal == "short" and pi * price >= 0.3 * portfolio_value:
+    
+        # --- SHORT ---
+        elif signal == "short":
+            if pi * price < 0.3 * portfolio_value:
+                msg = "Skipped trade, not enough PI to sell"
+                print(msg)
+                return msg
+    
             amount = self.calculate_amount(ORDER_PERCENT, price)
-            client.place_order("short", amount)
+            result = client.place_order("short", amount)
+    
+            if result.get("code") != "0":
+                msg = f"[ERROR] SHORT order failed: {result.get('msg', 'Unknown error')}"
+                print(msg)
+                return msg
+    
             self.active_position = "short"
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
-            msg="[SHORT] Opened at {price}"
-            print(msg)
-            return msg            
-        
-        elif signal == "short" and pi * price < 0.3 * portfolio_value:
-            msg="Skipped trade, not enough PI to sell"
+            msg = f"[SHORT] Opened at {price}"
             print(msg)
             return msg
+
     
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
