@@ -81,9 +81,13 @@ class TradingBot:
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
-            msg="[TRAILING] Updated TP: {self.trailing_tp:.4f}"
+            msg="[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
             return msg
+        elif change < TP_THRESHOLD + TRAIL_TRIGGER:
+            msg="[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
+            print(msg)
+            return msg            
 
         # --- Close at trailing TP ---
         if self.active_position == "long" and price < self.trailing_tp:
@@ -95,9 +99,6 @@ class TradingBot:
         if change <= SL_THRESHOLD:
             self.dca_and_close()
             
-        msg="[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} "
-        print(msg)
-        return msg
         
     def close_position(self, side):
         amount = client.get_position_size(BASE_CURRENCY if side == "long" else QUOTE_CURRENCY)
