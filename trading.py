@@ -1,5 +1,7 @@
 import time
 from client import OKXClient
+from datetime import datetime
+
 from config import (
     SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
     ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER, TRAIL_BUFFER
