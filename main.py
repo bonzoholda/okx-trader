@@ -114,7 +114,7 @@ def bot_loop():
                 "initial": round(bot.initial_portfolio_value, 4),
                 "current": round(current_value, 4),
                 "growth_percent": round(growth_percent, 2),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
 
             signal = data.get("signal")
