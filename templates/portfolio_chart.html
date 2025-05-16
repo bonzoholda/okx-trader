@@ -85,61 +85,66 @@
         value < 0 ? redGradient : greenGradient
       );
 
-      if (!window.portfolioChart) {
-        window.portfolioChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: window.labels,
-            datasets: [{
-              label: 'Portfolio Growth %',
-              data: window.growthData,
-              fill: true,
-              borderColor: '#3BA55C',
-              backgroundColor: function(context) {
-                const index = context.dataIndex;
-                return backgroundColors[index];
-              },
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  color: '#bbb',
-                  callback: value => value + '%'
+        if (!window.portfolioChart) {
+          const minY = Math.min(...window.growthData, 0);
+          const maxY = Math.max(...window.growthData, 0);
+        
+          const gradient = ctx.createLinearGradient(0, 300, 0, 0);
+          gradient.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
+          gradient.addColorStop(Math.abs(minY) / (maxY - minY), 'rgba(255, 99, 132, 0.1)');
+          gradient.addColorStop(Math.abs(minY) / (maxY - minY), 'rgba(59, 165, 92, 0.1)');
+          gradient.addColorStop(1, 'rgba(59, 165, 92, 0.5)');
+        
+          window.portfolioChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: window.labels,
+              datasets: [{
+                label: 'Portfolio Growth %',
+                data: window.growthData,
+                fill: true,
+                borderColor: '#3BA55C',
+                backgroundColor: gradient,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: false,
+                  ticks: {
+                    color: '#bbb',
+                    callback: value => value + '%'
+                  },
+                  grid: {
+                    color: '#333',
+                    borderColor: '#444',
+                  }
                 },
-                grid: {
-                  color: '#333',
-                  borderColor: '#444',
+                x: {
+                  ticks: { display: false },
+                  grid: { display: false }
                 }
               },
-              x: {
-                ticks: {
-                  display: false
+              plugins: {
+                legend: {
+                  labels: { color: '#bbb', font: { size: 14 } }
                 },
-                grid: { display: false }
-              }
-            },
-            plugins: {
-              legend: {
-                labels: { color: '#bbb', font: { size: 14 } }
-              },
-              tooltip: {
-                callbacks: {
-                  label: context => `${context.parsed.y.toFixed(2)}%`
+                tooltip: {
+                  callbacks: {
+                    label: context => `${context.parsed.y.toFixed(2)}%`
+                  }
                 }
               }
             }
-          }
-        });
-      } else {
-        window.portfolioChart.update();
-      }
+          });
+        } else {
+          window.portfolioChart.update();
+        }
+
     }
 
     setInterval(loadChart, 5000);
