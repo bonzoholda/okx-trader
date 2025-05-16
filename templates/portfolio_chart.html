@@ -32,82 +32,87 @@
   </div>
 
   <script>
-    (async () => {
+    const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
+
+    const labels = [];
+    const growthData = [];
+
+    const data = {
+      labels,
+      datasets: [{
+        label: 'Portfolio Growth %',
+        data: growthData,
+        fill: true,
+        borderColor: '#3BA55C',
+        backgroundColor: 'rgba(59, 165, 92, 0.3)',
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    };
+
+    const options = {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            color: '#bbb',
+            callback: value => value + '%'
+          },
+          grid: {
+            color: '#333',
+            borderColor: '#444',
+          }
+        },
+        x: {
+          ticks: {
+            color: '#bbb'
+          },
+          grid: {
+            display: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: { color: '#bbb', font: { size: 14 } }
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: context => `${context.parsed.y.toFixed(2)}%`
+          }
+        }
+      }
+    };
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data,
+      options,
+    });
+
+    async function fetchAndUpdate() {
       try {
         const res = await fetch("/api/portfolio");
+        if (!res.ok) return;
+
         const json = await res.json();
-
-        if (!Array.isArray(json)) {
-          console.error("Unexpected data format:", json);
-          return;
+        if (json.timestamp && json.growth_percent !== undefined) {
+          const timeLabel = new Date(json.timestamp).toLocaleTimeString();
+          labels.push(timeLabel);
+          growthData.push(json.growth_percent);
+          chart.update();
         }
-
-        const baseValue = json[0]?.value || 1;
-
-        const labels = json.map(entry =>
-          new Date(entry.timestamp).toLocaleTimeString()
-        );
-
-        const growthData = json.map(entry =>
-          ((entry.value - baseValue) / baseValue * 100).toFixed(2)
-        );
-
-        const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
-
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Portfolio Growth %',
-              data: growthData,
-              fill: true,
-              borderColor: '#3BA55C',
-              backgroundColor: 'rgba(59, 165, 92, 0.3)',
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  color: '#bbb',
-                  callback: value => value + '%'
-                },
-                grid: {
-                  color: '#333',
-                  borderColor: '#444',
-                }
-              },
-              x: {
-                ticks: {
-                  color: '#bbb'
-                },
-                grid: {
-                  display: false
-                }
-              }
-            },
-            plugins: {
-              legend: {
-                labels: { color: '#bbb', font: { size: 14 } }
-              },
-              tooltip: {
-                callbacks: {
-                  label: context => `${context.parsed.y}%`
-                }
-              }
-            }
-          }
-        });
-      } catch (err) {
-        console.error("Failed to load portfolio chart:", err);
+      } catch (e) {
+        console.error("Failed to fetch portfolio data", e);
       }
-    })();
+    }
+
+    // Start updates
+    fetchAndUpdate();
+    setInterval(fetchAndUpdate, 5000);
   </script>
 </body>
 </html>
