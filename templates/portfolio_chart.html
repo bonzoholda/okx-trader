@@ -52,21 +52,16 @@
 
       const { growth_percent, timestamp, init_timestamp } = json;
 
-      // Format timestamp to HH:MM:SS (optional, not used for labels now)
       const ts = new Date(timestamp);
 
-      // Initialize data arrays
       if (!window.growthData) {
         window.growthData = [];
         window.labels = [];
       }
 
-      // Append latest data point
       window.growthData.push(growth_percent);
-      // Push empty label to hide x-axis labels (or push null)
-      window.labels.push(''); 
+      window.labels.push('');
 
-      // Calculate uptime duration
       const init = new Date(init_timestamp);
       const durationMs = ts - init;
       const seconds = Math.floor(durationMs / 1000) % 60;
@@ -75,6 +70,20 @@
 
       const formattedDuration = `${hours}h ${minutes}m ${seconds}s`;
       document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
+
+      // Create gradients once, outside the data mapping for perf:
+      const greenGradient = ctx.createLinearGradient(0, 0, 0, 300);
+      greenGradient.addColorStop(0, 'rgba(59, 165, 92, 0.5)');
+      greenGradient.addColorStop(1, 'rgba(59, 165, 92, 0.1)');
+
+      const redGradient = ctx.createLinearGradient(0, 0, 0, 300);
+      redGradient.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
+      redGradient.addColorStop(1, 'rgba(255, 99, 132, 0.1)');
+
+      // Map data points to corresponding gradient based on sign:
+      const backgroundColors = window.growthData.map(value =>
+        value < 0 ? redGradient : greenGradient
+      );
 
       if (!window.portfolioChart) {
         window.portfolioChart = new Chart(ctx, {
@@ -86,7 +95,10 @@
               data: window.growthData,
               fill: true,
               borderColor: '#3BA55C',
-              backgroundColor: 'rgba(59, 165, 92, 0.3)',
+              backgroundColor: function(context) {
+                const index = context.dataIndex;
+                return backgroundColors[index];
+              },
               tension: 0.3,
               pointRadius: 4,
               pointHoverRadius: 6,
@@ -108,7 +120,7 @@
               },
               x: {
                 ticks: {
-                  display: false  // <-- hide x axis labels here
+                  display: false
                 },
                 grid: { display: false }
               }
@@ -130,8 +142,8 @@
       }
     }
 
-    setInterval(loadChart, 5000); // update every 5 seconds
-    loadChart(); // initial load
+    setInterval(loadChart, 5000);
+    loadChart();
   </script>
 </body>
 </html>
