@@ -57,14 +57,7 @@ class TradingBot:
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
 
-            # ✅ Add this before returning
-            self.chart_position = {
-                "side": "long",
-                "entry_price": price,
-                "tp": price * (1 + TP_THRESHOLD),
-                "sl": price * (1 - SL_THRESHOLD),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            self.open_timestamp = datetime.utcnow().isoformat()
             
             msg = f"[LONG] Opened at {price}"
             print(msg)
@@ -89,14 +82,7 @@ class TradingBot:
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
 
-            # ✅ Add this before returning
-            self.chart_position = {
-                "side": "short",
-                "entry_price": price,
-                "tp": price * (1 - TP_THRESHOLD),
-                "sl": price * (1 + SL_THRESHOLD),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            self.open_timestamp = datetime.utcnow().isoformat()
 
             
             msg = f"[SHORT] Opened at {price}"
@@ -112,6 +98,21 @@ class TradingBot:
         if self.active_position == "short":
             change = -change
 
+        if self.active_position and self.entry_price and self.open_timestamp:
+            live_pnl = (price - self.entry_price) / self.entry_price
+            if self.active_position == "short":
+                live_pnl = -live_pnl
+        
+            self.chart_position = {
+                "side": self.active_position,
+                "entry": self.entry_price,
+                "tp": self.trailing_tp,
+                "timestamp": self.open_timestamp,
+                "current_price": price,
+                "live_pnl_percent": round(live_pnl * 100, 2)
+            }
+
+        
         # --- Trailing TP ---
         if change >= TP_THRESHOLD + TRAIL_TRIGGER:
             if self.active_position == "long":
@@ -157,6 +158,8 @@ class TradingBot:
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
+        self.chart_position = None
+        self.open_timestamp = None
 
     def dca_and_close(self):
         _, _, _, price = self.get_portfolio_value()
@@ -169,3 +172,5 @@ class TradingBot:
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
+        self.chart_position = None
+        self.open_timestamp = None
