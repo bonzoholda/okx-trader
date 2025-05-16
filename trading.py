@@ -13,6 +13,7 @@ class TradingBot:
         self.active_position = None  # "long" or "short"
         self.entry_price = None
         self.trailing_tp = None
+        self.chart_position = None
 
     def fetch_signal(self):
         try:
