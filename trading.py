@@ -190,4 +190,3 @@ class TradingBot:
         self.open_timestamp = None
         msg=f"[DCA] Added more to {side} before closing"
         print(msg)
-        return msg
