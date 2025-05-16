@@ -96,15 +96,15 @@ class TradingBot:
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-    
+        
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
-    
+
         live_pnl = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             live_pnl = -live_pnl
-    
+        
         self.chart_position = {
             "side": self.active_position,
             "entry": self.entry_price,
@@ -113,40 +113,41 @@ class TradingBot:
             "current_price": price,
             "live_pnl_percent": round(live_pnl * 100, 2)
         }
-    
-        # --- Trailing TP Activation / Update ---
+
+        
+        # --- Trailing TP ---
         if change >= TP_THRESHOLD + TRAIL_TRIGGER:
             if self.active_position == "long":
-                self.trailing_tp = max(self.trailing_tp or 0, price - TRAIL_TRIGGER * price)
+                self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
-                self.trailing_tp = min(self.trailing_tp or float('inf'), price + TRAIL_TRIGGER * price)
-            print(f"[TRAILING] Updated TP: {self.trailing_tp}")
-    
-        # --- TP Hit Without Trailing Activation ---
-        elif change >= TP_THRESHOLD and not self.trailing_tp:
-            if self.active_position == "long":
-                self.trailing_tp = price * (1 - TRAIL_BUFFER)
-            else:
-                self.trailing_tp = price * (1 + TRAIL_BUFFER)
-            print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
-    
+                self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
+            msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
+            print(msg)
+            #return msg
+        elif change < TP_THRESHOLD + TRAIL_TRIGGER:
+            msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}"
+            print(msg)
+            #return msg
+            # --- TP reached but not enough for full trailing ---
+            if change >= TP_THRESHOLD:
+                if not self.trailing_tp:
+                    if self.active_position == "long":
+                        self.trailing_tp = price * (1 - TRAIL_BUFFER)
+                    else:
+                        self.trailing_tp = price * (1 + TRAIL_BUFFER)
+                    msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
+                    print(msg)
+                    #return msg            
+
         # --- Close at trailing TP ---
-        if self.trailing_tp:
-            if self.active_position == "long" and price < self.trailing_tp:
-                self.close_position("long")
-                return f"[CLOSE] Price {price} fell below trailing TP {self.trailing_tp} (LONG)"
-            elif self.active_position == "short" and price > self.trailing_tp:
-                self.close_position("short")
-                return f"[CLOSE] Price {price} rose above trailing TP {self.trailing_tp} (SHORT)"
-    
+        if self.active_position == "long" and price < self.trailing_tp:
+            self.close_position("long")
+        elif self.active_position == "short" and price > self.trailing_tp:
+            self.close_position("short")
+
         # --- DCA on SL ---
         if change <= SL_THRESHOLD:
             self.dca_and_close()
-            return f"[SL] Hit SL threshold of {SL_THRESHOLD*100}%, applying DCA and closing."
-    
-        # --- Monitoring fallback ---
-        print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
-        return f"[MONITORING] Current PnL: {round(change * 100, 2)}%"
 
 
             
