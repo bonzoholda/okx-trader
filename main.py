@@ -66,7 +66,10 @@ def get_position_data():
         chart = getattr(bot, "chart_position", None)
         if chart:
             return JSONResponse(content=chart)
-        return JSONResponse(content={"message": "No active position"}, status_code=204)
+        # Option 1: 200 with message
+        return JSONResponse(content={"message": "No active position"}, status_code=200)
+        # Option 2: 204 no content
+        # return Response(status_code=204)
     except Exception as e:
         print("Error in /api/position:", str(e))
         traceback.print_exc()
