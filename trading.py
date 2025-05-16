@@ -1,6 +1,6 @@
 import time
 from client import OKXClient
-from datetime import datetime
+from datetime import datetime, timezone
 
 from config import (
     SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
@@ -60,7 +60,7 @@ class TradingBot:
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
 
-            self.open_timestamp = datetime.utcnow().isoformat()
+            self.open_timestamp = datetime.now(timezone.utc).isoformat()
             
             msg = f"[LONG] Opened at {price}"
             print(msg)
