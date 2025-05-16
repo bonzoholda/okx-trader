@@ -14,6 +14,7 @@ class TradingBot:
         self.entry_price = None
         self.trailing_tp = None
         self.chart_position = None
+        self.open_timestamp = None
 
     def fetch_signal(self):
         try:
