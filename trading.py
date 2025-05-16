@@ -99,19 +99,18 @@ class TradingBot:
         if self.active_position == "short":
             change = -change
 
-        if self.active_position and self.entry_price and self.open_timestamp:
-            live_pnl = (price - self.entry_price) / self.entry_price
-            if self.active_position == "short":
-                live_pnl = -live_pnl
+        live_pnl = (price - self.entry_price) / self.entry_price
+        if self.active_position == "short":
+            live_pnl = -live_pnl
         
-            self.chart_position = {
-                "side": self.active_position,
-                "entry": self.entry_price,
-                "tp": self.trailing_tp,
-                "timestamp": self.open_timestamp,
-                "current_price": price,
-                "live_pnl_percent": round(live_pnl * 100, 2)
-            }
+        self.chart_position = {
+            "side": self.active_position,
+            "entry": self.entry_price,
+            "tp": self.trailing_tp,
+            "timestamp": self.open_timestamp,
+            "current_price": price,
+            "live_pnl_percent": round(live_pnl * 100, 2)
+        }
 
         
         # --- Trailing TP ---
