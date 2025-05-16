@@ -61,8 +61,9 @@ async def stream_logs():
 
 @app.get("/api/position")
 def get_position_data():
-    if bot.chart_position:
-        return JSONResponse(content=bot.chart_position)
+    chart = getattr(bot, "chart_position", None)  # Safe access
+    if chart:
+        return JSONResponse(content=chart)
     return JSONResponse(content={"message": "No active position"}, status_code=204)
 
 def log_event(msg: str):
