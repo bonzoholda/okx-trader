@@ -86,6 +86,9 @@ def get_portfolio_data():
         traceback.print_exc()
         return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
 
+@app.get("/portfolio_chart", response_class=HTMLResponse)
+async def portfolio_chart(request: Request):
+    return templates.TemplateResponse("portfolio_chart.html", {"request": request})
 
 def log_event(msg: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
