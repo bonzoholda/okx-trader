@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 
 from config import (
     SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
-    ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER, TRAIL_BUFFER
+    ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER, TRAIL_BUFFER,
+    LONG_THRESHOLD, SHORT_THRESHOLD
 )
 
 client = OKXClient()
@@ -43,7 +44,7 @@ class TradingBot:
     
         # --- LONG ---
         if signal == "long":
-            if usdt < 0.3 * portfolio_value:
+            if usdt < LONG_THRESHOLD * portfolio_value:
                 msg = "Skipped trade, not enough USDT to buy"
                 print(msg)
                 return msg
@@ -68,7 +69,7 @@ class TradingBot:
     
         # --- SHORT ---
         elif signal == "short":
-            if pi * price < 0.3 * portfolio_value:
+            if pi * price < SHORT_THRESHOLD * portfolio_value:
                 msg = "Skipped trade, not enough PI to sell"
                 print(msg)
                 return msg
