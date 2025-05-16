@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
-
+import traceback
 
 bot = TradingBot()
 client = OKXClient()
@@ -61,10 +61,15 @@ async def stream_logs():
 
 @app.get("/api/position")
 def get_position_data():
-    chart = getattr(bot, "chart_position", None)  # Safe access
-    if chart:
-        return JSONResponse(content=chart)
-    return JSONResponse(content={"message": "No active position"}, status_code=204)
+    try:
+        chart = getattr(bot, "chart_position", None)
+        if chart:
+            return JSONResponse(content=chart)
+        return JSONResponse(content={"message": "No active position"}, status_code=204)
+    except Exception as e:
+        print("Error in /api/position:", str(e))
+        traceback.print_exc()
+        return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
 
 def log_event(msg: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
