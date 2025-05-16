@@ -6,7 +6,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      background-color: #121212; /* dark background */
+      background-color: #121212;
       color: #eee;
       font-family: 'Roboto', sans-serif;
       display: flex;
@@ -32,67 +32,82 @@
   </div>
 
   <script>
-    const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
+    (async () => {
+      try {
+        const res = await fetch("/api/portfolio");
+        const json = await res.json();
 
-    // Example data points (replace with live API data fetching)
-    const labels = ['T-4', 'T-3', 'T-2', 'T-1', 'Now'];
-    const growthData = [0, 0.1, 0.05, -0.02, -0.07]; // growth % over time
-
-    const data = {
-      labels: labels,
-      datasets: [{
-        label: 'Portfolio Growth %',
-        data: growthData,
-        fill: true,
-        borderColor: '#3BA55C',
-        backgroundColor: 'rgba(59, 165, 92, 0.3)',
-        tension: 0.3,  // smooth curve
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      }]
-    };
-
-    const options = {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: false,
-          ticks: {
-            color: '#bbb',
-            callback: value => value + '%'
-          },
-          grid: {
-            color: '#333',
-            borderColor: '#444',
-          }
-        },
-        x: {
-          ticks: {
-            color: '#bbb'
-          },
-          grid: {
-            display: false
-          }
+        if (!Array.isArray(json)) {
+          console.error("Unexpected data format:", json);
+          return;
         }
-      },
-      plugins: {
-        legend: {
-          labels: { color: '#bbb', font: { size: 14 } }
-        },
-        tooltip: {
-          enabled: true,
-          callbacks: {
-            label: context => `${context.parsed.y.toFixed(2)}%`
+
+        const baseValue = json[0]?.value || 1;
+
+        const labels = json.map(entry =>
+          new Date(entry.timestamp).toLocaleTimeString()
+        );
+
+        const growthData = json.map(entry =>
+          ((entry.value - baseValue) / baseValue * 100).toFixed(2)
+        );
+
+        const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
+
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Portfolio Growth %',
+              data: growthData,
+              fill: true,
+              borderColor: '#3BA55C',
+              backgroundColor: 'rgba(59, 165, 92, 0.3)',
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  color: '#bbb',
+                  callback: value => value + '%'
+                },
+                grid: {
+                  color: '#333',
+                  borderColor: '#444',
+                }
+              },
+              x: {
+                ticks: {
+                  color: '#bbb'
+                },
+                grid: {
+                  display: false
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: { color: '#bbb', font: { size: 14 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: context => `${context.parsed.y}%`
+                }
+              }
+            }
           }
-        }
+        });
+      } catch (err) {
+        console.error("Failed to load portfolio chart:", err);
       }
-    };
-
-    new Chart(ctx, {
-      type: 'line',
-      data: data,
-      options: options,
-    });
+    })();
   </script>
 </body>
 </html>
