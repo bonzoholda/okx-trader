@@ -107,7 +107,7 @@ def bot_loop():
         
         try:
             # Tracking portfolio
-            current_value = bot.get_portfolio_value()
+            current_value = bot.get_portfolio_value()[0]
             growth_percent = ((current_value - bot.initial_portfolio_value) / bot.initial_portfolio_value) * 100
 
             bot.live_portfolio_data = {
