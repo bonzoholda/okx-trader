@@ -124,7 +124,7 @@ class TradingBot:
             print(msg)
             return msg
         elif change < TP_THRESHOLD + TRAIL_TRIGGER:
-            msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp}"
+            msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}"
             print(msg)
             return msg
             # --- TP reached but not enough for full trailing ---
