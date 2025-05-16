@@ -43,112 +43,97 @@
     Bot running for: calculating...
   </div>
 
-  <script>
-    const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
+<script>
+  const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
 
-    async function loadChart() {
-      const res = await fetch("/api/portfolio");
-      const json = await res.json();
+  async function loadChart() {
+    const res = await fetch("/api/portfolio");
+    const json = await res.json();
 
-      const { growth_percent, timestamp, init_timestamp } = json;
+    const { growth_percent, timestamp, init_timestamp } = json;
 
-      const ts = new Date(timestamp);
+    const ts = new Date(timestamp);
+    const label = ts.toLocaleTimeString();
 
-      if (!window.growthData) {
-        window.growthData = [];
-        window.labels = [];
-      }
-
-      window.growthData.push(growth_percent);
-      window.labels.push('');
-
-      const init = new Date(init_timestamp);
-      const durationMs = ts - init;
-      const seconds = Math.floor(durationMs / 1000) % 60;
-      const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
-      const hours = Math.floor(durationMs / (1000 * 60 * 60));
-
-      const formattedDuration = `${hours}h ${minutes}m ${seconds}s`;
-      document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
-
-      // Create gradients once, outside the data mapping for perf:
-      const greenGradient = ctx.createLinearGradient(0, 0, 0, 300);
-      greenGradient.addColorStop(0, 'rgba(59, 165, 92, 0.5)');
-      greenGradient.addColorStop(1, 'rgba(59, 165, 92, 0.1)');
-
-      const redGradient = ctx.createLinearGradient(0, 0, 0, 300);
-      redGradient.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
-      redGradient.addColorStop(1, 'rgba(255, 99, 132, 0.1)');
-
-      // Map data points to corresponding gradient based on sign:
-      const backgroundColors = window.growthData.map(value =>
-        value < 0 ? redGradient : greenGradient
-      );
-
-        if (!window.portfolioChart) {
-          const minY = Math.min(...window.growthData, 0);
-          const maxY = Math.max(...window.growthData, 0);
-        
-          const gradient = ctx.createLinearGradient(0, 300, 0, 0);
-          gradient.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
-          gradient.addColorStop(Math.abs(minY) / (maxY - minY), 'rgba(255, 99, 132, 0.1)');
-          gradient.addColorStop(Math.abs(minY) / (maxY - minY), 'rgba(59, 165, 92, 0.1)');
-          gradient.addColorStop(1, 'rgba(59, 165, 92, 0.5)');
-        
-          window.portfolioChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: window.labels,
-              datasets: [{
-                label: 'Portfolio Growth %',
-                data: window.growthData,
-                fill: true,
-                borderColor: '#3BA55C',
-                backgroundColor: gradient,
-                tension: 0.3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: false,
-                  ticks: {
-                    color: '#bbb',
-                    callback: value => value + '%'
-                  },
-                  grid: {
-                    color: '#333',
-                    borderColor: '#444',
-                  }
-                },
-                x: {
-                  ticks: { display: false },
-                  grid: { display: false }
-                }
-              },
-              plugins: {
-                legend: {
-                  labels: { color: '#bbb', font: { size: 14 } }
-                },
-                tooltip: {
-                  callbacks: {
-                    label: context => `${context.parsed.y.toFixed(2)}%`
-                  }
-                }
-              }
-            }
-          });
-        } else {
-          window.portfolioChart.update();
-        }
-
+    // Initialize arrays if not already
+    if (!window.growthData) {
+      window.growthData = [];
+      window.labels = [];
     }
 
-    setInterval(loadChart, 5000);
-    loadChart();
-  </script>
+    window.growthData.push(growth_percent);
+    window.labels.push(label);
+
+    // Uptime duration calculation
+    const init = new Date(init_timestamp);
+    const durationMs = ts - init;
+
+    const seconds = Math.floor(durationMs / 1000) % 60;
+    const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
+    const hours = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
+    const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+
+    let formattedDuration = '';
+    if (days > 0) formattedDuration += `${days}d `;
+    if (hours > 0 || days > 0) formattedDuration += `${hours}h `;
+    if (minutes > 0 || hours > 0 || days > 0) formattedDuration += `${minutes}m `;
+    formattedDuration += `${seconds}s`;
+
+    document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
+
+    if (!window.portfolioChart) {
+      window.portfolioChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: window.labels,
+          datasets: [{
+            label: 'Portfolio Growth %',
+            data: window.growthData,
+            fill: true,
+            borderColor: '#3BA55C',
+            backgroundColor: 'rgba(59, 165, 92, 0.3)',
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                color: '#bbb',
+                callback: value => value + '%'
+              },
+              grid: {
+                color: '#333',
+                borderColor: '#444',
+              }
+            },
+            x: {
+              display: false // Hide X axis labels
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#bbb', font: { size: 14 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: context => `${context.parsed.y.toFixed(2)}%`
+              }
+            }
+          }
+        }
+      });
+    } else {
+      window.portfolioChart.update();
+    }
+  }
+
+  setInterval(loadChart, 5000);
+</script>
+
 </body>
 </html>
