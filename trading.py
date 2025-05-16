@@ -165,7 +165,7 @@ class TradingBot:
             
         if not success:
             print("[ERROR] Failed to close position — order rejected.")
-            return  # Don't reset state!
+            #return  # Don't reset state!
     
         # Only if success:
         self.active_position = None
@@ -181,11 +181,12 @@ class TradingBot:
         dca_amount = self.calculate_amount(DCA_PERCENT, price)
         side = "long" if self.active_position == "long" else "short"
         client.place_order(side, dca_amount)
-        msg=f"[DCA] Added more to {side} before closing"
-        print(msg)
-        return msg
+
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
         self.chart_position = None
         self.open_timestamp = None
+        msg=f"[DCA] Added more to {side} before closing"
+        print(msg)
+        return msg
