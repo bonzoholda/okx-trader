@@ -115,6 +115,7 @@ def bot_loop():
 
             bot.live_portfolio_data = {
                 "initial": round(bot.initial_portfolio_value, 4),
+                "init_timestamp": bot.initial_portfolio_timestamp,
                 "current": round(current_value, 4),
                 "growth_percent": round(growth_percent, 2),
                 "timestamp": datetime.now(timezone.utc).isoformat()
