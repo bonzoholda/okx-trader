@@ -55,6 +55,16 @@ class TradingBot:
             self.active_position = "long"
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
+
+            # ✅ Add this before returning
+            self.chart_position = {
+                "side": "long",
+                "entry_price": price,
+                "tp": price * (1 + TP_THRESHOLD),
+                "sl": price * (1 - SL_THRESHOLD),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
             msg = f"[LONG] Opened at {price}"
             print(msg)
             return msg
@@ -77,6 +87,17 @@ class TradingBot:
             self.active_position = "short"
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
+
+            # ✅ Add this before returning
+            self.chart_position = {
+                "side": "short",
+                "entry_price": price,
+                "tp": price * (1 - TP_THRESHOLD),
+                "sl": price * (1 + SL_THRESHOLD),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+
+            
             msg = f"[SHORT] Opened at {price}"
             print(msg)
             return msg
