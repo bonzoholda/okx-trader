@@ -12,6 +12,7 @@ client = OKXClient()
 
 class TradingBot:
     def __init__(self):
+        self.initial_portfolio_value = self.get_portfolio_value()
         self.active_position = None  # "long" or "short"
         self.entry_price = None
         self.trailing_tp = None
