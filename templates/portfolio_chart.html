@@ -14,6 +14,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      flex-direction: column;
     }
     #chart-container {
       width: 600px;
@@ -24,102 +25,113 @@
       padding: 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
+    #uptime {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ccc;
+      width: 600px;
+      max-width: 90vw;
+    }
   </style>
 </head>
 <body>
   <div id="chart-container">
     <canvas id="portfolioGrowthChart"></canvas>
   </div>
-  <div id="uptime" style="text-align: center; margin-top: 10px; font-size: 14px; color: #ccc;">
+  <div id="uptime">
     Bot running for: calculating...
   </div>
 
- <script>
-  const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
+  <script>
+    const ctx = document.getElementById('portfolioGrowthChart').getContext('2d');
 
-  async function loadChart() {
-    const res = await fetch("/api/portfolio");
-    const json = await res.json();
+    async function loadChart() {
+      const res = await fetch("/api/portfolio");
+      const json = await res.json();
 
-    const { growth_percent, timestamp, init_timestamp } = json;
+      const { growth_percent, timestamp, init_timestamp } = json;
 
-    // Format timestamp to HH:MM:SS
-    const ts = new Date(timestamp);
-    const label = ts.toLocaleTimeString();
+      // Format timestamp to HH:MM:SS (optional, not used for labels now)
+      const ts = new Date(timestamp);
 
-    // Chart data arrays (keep appending as chart updates)
-    if (!window.growthData) {
-      window.growthData = [];
-      window.labels = [];
-    }
+      // Initialize data arrays
+      if (!window.growthData) {
+        window.growthData = [];
+        window.labels = [];
+      }
 
-    window.growthData.push(growth_percent);
-    window.labels.push(label);
+      // Append latest data point
+      window.growthData.push(growth_percent);
+      // Push empty label to hide x-axis labels (or push null)
+      window.labels.push(''); 
 
-    // Calculate uptime duration
-    const init = new Date(init_timestamp);
-    const durationMs = ts - init;
-    const seconds = Math.floor(durationMs / 1000) % 60;
-    const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
-    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+      // Calculate uptime duration
+      const init = new Date(init_timestamp);
+      const durationMs = ts - init;
+      const seconds = Math.floor(durationMs / 1000) % 60;
+      const minutes = Math.floor(durationMs / (1000 * 60)) % 60;
+      const hours = Math.floor(durationMs / (1000 * 60 * 60));
 
-    const formattedDuration = `${hours}h ${minutes}m ${seconds}s`;
-    document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
+      const formattedDuration = `${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
 
-    if (!window.portfolioChart) {
-      window.portfolioChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: window.labels,
-          datasets: [{
-            label: 'Portfolio Growth %',
-            data: window.growthData,
-            fill: true,
-            borderColor: '#3BA55C',
-            backgroundColor: 'rgba(59, 165, 92, 0.3)',
-            tension: 0.3,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                color: '#bbb',
-                callback: value => value + '%'
+      if (!window.portfolioChart) {
+        window.portfolioChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: window.labels,
+            datasets: [{
+              label: 'Portfolio Growth %',
+              data: window.growthData,
+              fill: true,
+              borderColor: '#3BA55C',
+              backgroundColor: 'rgba(59, 165, 92, 0.3)',
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  color: '#bbb',
+                  callback: value => value + '%'
+                },
+                grid: {
+                  color: '#333',
+                  borderColor: '#444',
+                }
               },
-              grid: {
-                color: '#333',
-                borderColor: '#444',
+              x: {
+                ticks: {
+                  display: false  // <-- hide x axis labels here
+                },
+                grid: { display: false }
               }
             },
-            x: {
-              ticks: { color: '#bbb' },
-              grid: { display: false }
-            }
-          },
-          plugins: {
-            legend: {
-              labels: { color: '#bbb', font: { size: 14 } }
-            },
-            tooltip: {
-              callbacks: {
-                label: context => `${context.parsed.y.toFixed(2)}%`
+            plugins: {
+              legend: {
+                labels: { color: '#bbb', font: { size: 14 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: context => `${context.parsed.y.toFixed(2)}%`
+                }
               }
             }
           }
-        }
-      });
-    } else {
-      window.portfolioChart.update();
+        });
+      } else {
+        window.portfolioChart.update();
+      }
     }
-  }
 
-  setInterval(loadChart, 5000); // update every 5 seconds
-</script>
-
+    setInterval(loadChart, 5000); // update every 5 seconds
+    loadChart(); // initial load
+  </script>
 </body>
 </html>
