@@ -153,16 +153,21 @@ class TradingBot:
             
         
     def close_position(self, side):
-        amount = client.get_position_size(BASE_CURRENCY if side == "long" else QUOTE_CURRENCY)
-        client.place_order("short" if side == "long" else "long", amount)
-        msg=f"[CLOSE] {side.upper()} closed"
-        print(msg)
-        return msg
+        # Try to place the reverse order
+        success = self.place_order("short" if side == "long" else "long")
+    
+        if not success:
+            print("[ERROR] Failed to close position — order rejected.")
+            return  # Don't reset state!
+    
+        # Only if success:
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
-        self.chart_position = None
         self.open_timestamp = None
+        self.chart_position = None
+        print(f"[CLOSED] {side.upper()} position closed.")
+
 
     def dca_and_close(self):
         _, _, _, price = self.get_portfolio_value()
