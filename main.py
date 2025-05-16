@@ -117,7 +117,6 @@ def bot_loop():
                 "timestamp": datetime.utcnow().isoformat()
             }
 
-            
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
@@ -172,6 +171,10 @@ def start_api():
 if __name__ == "__main__":
     # Start FastAPI in a separate thread
     threading.Thread(target=start_api, daemon=True).start()
+
+    # Init tracking
+    bot.initial_portfolio_value = bot.get_portfolio_value()[0]  # only `total`
+    bot.initial_portfolio_timestamp = datetime.utcnow().isoformat()
 
     # Start the bot loop in main thread
     bot_loop()
