@@ -75,6 +75,18 @@ def get_position_data():
         traceback.print_exc()
         return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
 
+@app.get("/api/portfolio")
+def get_portfolio_data():
+    try:
+        if getattr(bot, "live_portfolio_data", None):
+            return JSONResponse(content=bot.live_portfolio_data)
+        return JSONResponse(content={"message": "Portfolio data unavailable"}, status_code=204)
+    except Exception as e:
+        print("Error in /api/portfolio:", str(e))
+        traceback.print_exc()
+        return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
+
+
 def log_event(msg: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     full_msg = f"[{timestamp}] {msg}"
@@ -94,6 +106,18 @@ def bot_loop():
             continue
         
         try:
+            # Tracking portfolio
+            current_value = bot.get_portfolio_value()
+            growth_percent = ((current_value - bot.initial_portfolio_value) / bot.initial_portfolio_value) * 100
+
+            bot.live_portfolio_data = {
+                "initial": round(bot.initial_portfolio_value, 4),
+                "current": round(current_value, 4),
+                "growth_percent": round(growth_percent, 2),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+
+            
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
