@@ -154,7 +154,7 @@ class TradingBot:
         
     def close_position(self, side):
         # Try to place the reverse order
-        success = self.place_order("short" if side == "long" else "long")
+        success = self.open_position("short" if side == "long" else "long", price)
     
         if not success:
             print("[ERROR] Failed to close position — order rejected.")
