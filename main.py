@@ -59,6 +59,12 @@ async def stream_logs():
             yield f"data: {message}\n\n"
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+@app.get("/api/position")
+def get_position_data():
+    if bot.chart_position:
+        return JSONResponse(content=bot.chart_position)
+    return JSONResponse(content={"message": "No active position"}, status_code=204)
+
 def log_event(msg: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     full_msg = f"[{timestamp}] {msg}"
