@@ -156,6 +156,7 @@ class TradingBot:
             
         
     def close_position(self, side):
+        price = client.get_price()
         # Try to place the reverse order
         if side == "long":
             success = self.open_position("short", price)
