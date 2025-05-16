@@ -1,7 +1,7 @@
 /* static/style.css */
 body {
   font-family: 'Exo 2', sans-serif;
-  background: #1a002d;
+  background: black;
   margin: 0;
   padding: 2rem;
   color: #e5e5ff;
@@ -14,6 +14,14 @@ body {
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.container2 {
+  max-width: 700px;
+  margin: auto;
+  background: 	black;
+  border-radius: 16px;
+  padding: 2rem;
 }
 
 h1, h2 {
