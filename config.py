@@ -18,11 +18,11 @@ SYMBOL = "PI-USDT"              # Market pair (spot)
 BASE_CURRENCY = "USDT"
 QUOTE_CURRENCY = "PI"
 
-ORDER_PERCENT = 0.20         # 12% of portfolio for initial entry
-DCA_PERCENT = 0.30           # 18% for DCA on SL trigger
+ORDER_PERCENT = 0.12         # 12% of portfolio for initial entry
+DCA_PERCENT = 0.18           # 18% for DCA on SL trigger
 
-LONG_THRESHOLD = 0.50           # USDT must be > 30% of portfolio to open long
-SHORT_THRESHOLD = 0.50          # PI must be > 30% of portfolio to open short
+LONG_THRESHOLD = 0.30           # USDT must be > 30% of portfolio to open long
+SHORT_THRESHOLD = 0.30          # PI must be > 30% of portfolio to open short
 
 TP_THRESHOLD = 0.03          # 3% TP
 SL_THRESHOLD = -0.05           # -5% SL triggers DCA
