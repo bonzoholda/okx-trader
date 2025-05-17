@@ -124,20 +124,19 @@ class TradingBot:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
             msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
-            #return msg
+       
         elif change < (TP_THRESHOLD + TRAIL_TRIGGER):
 
             # --- TP reached but not enough for full trailing ---
             if change >= TP_THRESHOLD:
-                if not self.trailing_tp:
-                    if self.active_position == "long":
-                        self.trailing_tp = price * (1 - TRAIL_BUFFER)
-                    else:
-                        self.trailing_tp = price * (1 + TRAIL_BUFFER)
-                    msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
-                    print(msg)
-                    #return msg 
-            elif change < TP_THRESHOLD and not self.trailing_tp:
+                if self.active_position == "long":
+                    self.trailing_tp = price * (1 - TRAIL_BUFFER)
+                else:
+                    self.trailing_tp = price * (1 + TRAIL_BUFFER)
+                msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
+                print(msg)
+                 
+            elif change < TP_THRESHOLD:
                 # --- DCA on SL ---
                 if change <= SL_THRESHOLD:
                     self.dca_and_close()
