@@ -1,119 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Position Tracker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Active Position Tracker</title>
   <style>
-    .glow-bar {
-      box-shadow: 0 0 8px rgba(59, 130, 246, 0.8), 0 0 16px rgba(59, 130, 246, 0.5);
-      transition: all 0.3s ease-in-out;
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      padding: 1rem;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #00d1b2;
+    }
+
+    .bar-wrapper {
+      background: #333;
+      border-radius: 10px;
+      position: relative;
+      height: 24px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .bar {
+      position: absolute;
+      height: 100%;
+      background: linear-gradient(90deg, #00c896, #00e6a1);
+      box-shadow: 0 0 12px #00e6a1aa;
+      transition: left 0.2s;
+      border-radius: 10px;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    .status {
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .pulse {
+      animation: pulseGlow 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 8px #00e6a1aa;
+      }
+      50% {
+        box-shadow: 0 0 18px #00ffc2dd;
+      }
     }
   </style>
 </head>
-<body class="bg-gray-100 p-4">
-  <div class="w-full max-w-xl mx-auto mt-6 p-4 bg-white rounded-2xl shadow-md">
-    <h2 class="text-lg font-semibold mb-4 text-center">Live Position Tracker</h2>
-
-    <!-- Meter -->
-    <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-      <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-full bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 opacity-25"></div>
-      <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-black z-10"></div>
-      <div id="pnl-indicator" class="absolute top-0 h-full w-1 bg-blue-600 z-20 glow-bar" style="left: 50%;"></div>
+<body>
+  <div class="container">
+    <h2>Active Position</h2>
+    <div class="bar-wrapper">
+      <div id="bar" class="bar pulse" style="width: 50%"></div>
     </div>
-
-    <!-- Labels -->
-    <div class="flex justify-between text-xs mt-2 px-1 font-mono">
-      <span id="sl-label" class="text-red-500">SL: —</span>
-      <span id="entry-label" class="text-black">Entry: —</span>
-      <span id="tp-label" class="text-green-500">TP: —</span>
+    <div class="labels">
+      <span id="sl">SL</span>
+      <span id="entry">Entry</span>
+      <span id="tp">TP</span>
     </div>
-
-    <!-- PnL % -->
-    <div class="text-center mt-2 text-sm font-semibold">
-      <span id="pnl-display" class="text-blue-600">PnL: —%</span>
-    </div>
-
-    <!-- Position duration -->
-    <div class="text-center mt-1 text-xs text-gray-600 italic" id="position-timer">
-      Position: —, has been active for: —
+    <div class="status" id="statusText">
+      Loading position info...
     </div>
   </div>
 
   <script>
-    function formatDuration(seconds) {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      const s = Math.floor(seconds % 60);
-      return `${h > 0 ? h + "h " : ""}${m > 0 ? m + "m " : ""}${s}s`;
-    }
-
-    function updatePositionMeter({ side, entry, tp, current_price, live_pnl_percent, timestamp }) {
-      const indicator = document.getElementById("pnl-indicator");
-      const slLabel = document.getElementById("sl-label");
-      const tpLabel = document.getElementById("tp-label");
-      const entryLabel = document.getElementById("entry-label");
-      const pnlDisplay = document.getElementById("pnl-display");
-      const positionTimer = document.getElementById("position-timer");
-
-      // Infer SL
-      let sl;
-      if (side === "long") {
-        const diff = tp - entry;
-        sl = entry - diff;
-      } else {
-        const diff = entry - tp;
-        sl = entry + diff;
+    async function fetchPosition() {
+      const res = await fetch('/api/position');
+      const data = await res.json();
+      if (!data || !data.entry || !data.tp) {
+        document.getElementById("statusText").innerText = "No active position.";
+        return;
       }
 
-      // Position of current price
-      const totalRange = tp - sl;
-      const position = ((current_price - sl) / totalRange) * 100;
-      const clamped = Math.max(0, Math.min(position, 100));
-      indicator.style.left = `${clamped}%`;
+      const { side, entry, tp, timestamp, current_price, live_pnl_percent } = data;
 
-      // Labels
-      slLabel.innerText = `SL: ${sl.toFixed(4)}`;
-      tpLabel.innerText = `TP: ${tp.toFixed(4)}`;
-      entryLabel.innerText = `Entry: ${entry.toFixed(4)}`;
-      pnlDisplay.innerText = `PnL: ${live_pnl_percent.toFixed(2)}%`;
-      pnlDisplay.className = `text-center mt-2 text-sm font-semibold ${
-        live_pnl_percent >= 0 ? "text-green-600" : "text-red-600"
-      }`;
+      // Calculate percentage of current price between entry and TP/SL
+      let min = side === "long" ? entry * (1 + -0.05) : tp;
+      let max = side === "long" ? tp : entry * (1 + 0.05);
+      let value = Math.min(Math.max(current_price, min), max);
+      let percent = ((value - min) / (max - min)) * 100;
 
-      // Glow strength
-      const glowStrength = Math.min(10, Math.abs(live_pnl_percent) / 2);
-      indicator.style.boxShadow = `0 0 ${glowStrength}px rgba(59,130,246,0.9), 0 0 ${
-        glowStrength * 1.5
-      }px rgba(59,130,246,0.6)`;
+      document.getElementById("bar").style.width = percent + "%";
 
-      // Duration
-      if (timestamp) {
-        const openTime = new Date(timestamp);
-        const now = new Date();
-        const seconds = Math.floor((now - openTime) / 1000);
-        const duration = formatDuration(seconds);
-        positionTimer.innerText = `Position: ${side}, has been active for: ${duration}`;
-      }
+      document.getElementById("sl").innerText = side === "long"
+        ? (entry * (1 + -0.05)).toFixed(4)
+        : tp.toFixed(4);
+
+      document.getElementById("entry").innerText = entry.toFixed(4);
+      document.getElementById("tp").innerText = side === "long"
+        ? tp.toFixed(4)
+        : (entry * (1 + 0.05)).toFixed(4);
+
+      // Calculate duration since position was opened
+      const openedAt = new Date(timestamp);
+      const now = new Date();
+      const seconds = Math.floor((now - openedAt) / 1000);
+      const duration = seconds < 60
+        ? `${seconds}s`
+        : seconds < 3600
+          ? `${Math.floor(seconds / 60)}m ${seconds % 60}s`
+          : `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+
+      document.getElementById("statusText").innerText = 
+        `Position: ${side.toUpperCase()}, live PnL: ${live_pnl_percent}% — Active for: ${duration}`;
     }
 
-    async function fetchAndUpdate() {
-      try {
-        const res = await fetch("/api/position");
-        if (res.status === 204) return;
-
-        const data = await res.json();
-        if (data.entry && data.tp && data.current_price && typeof data.live_pnl_percent === "number") {
-          updatePositionMeter(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch position data:", err);
-      }
-    }
-
-    fetchAndUpdate();
-    setInterval(fetchAndUpdate, 5000);
+    fetchPosition();
+    setInterval(fetchPosition, 5000);
   </script>
 </body>
 </html>
