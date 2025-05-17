@@ -147,9 +147,9 @@ class TradingBot:
                 
 
         # --- Close at trailing TP ---
-        if self.active_position == "long" and price < self.trailing_tp and change >= TP_THRESHOLD:
+        if self.active_position == "long" and price <= self.trailing_tp and change >= TP_THRESHOLD:
             self.close_position("long")
-        elif self.active_position == "short" and price > self.trailing_tp and change >= TP_THRESHOLD:
+        elif self.active_position == "short" and price >= self.trailing_tp and change >= TP_THRESHOLD:
             self.close_position("short")
 
 
