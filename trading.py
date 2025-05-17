@@ -18,6 +18,7 @@ class TradingBot:
         self.trailing_tp = None
         self.chart_position = None
         self.open_timestamp = None
+        self.tp_target = None
 
     def fetch_signal(self):
         try:
@@ -60,6 +61,7 @@ class TradingBot:
             self.active_position = "long"
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
+            self.tp_target = self.trailing_tp
 
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
             
@@ -85,6 +87,7 @@ class TradingBot:
             self.active_position = "short"
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
+            self.tp_target = self.trailing_tp
 
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
 
@@ -147,9 +150,9 @@ class TradingBot:
                 
 
         # --- Close at trailing TP ---
-        if self.active_position == "long" and price <= self.trailing_tp and change >= TP_THRESHOLD:
+        if self.active_position == "long" and price <= self.trailing_tp and price > self.tp_target:
             self.close_position("long")
-        elif self.active_position == "short" and price >= self.trailing_tp and change >= TP_THRESHOLD:
+        elif self.active_position == "short" and price >= self.trailing_tp and price < self.tp_target:
             self.close_position("short")
 
 
@@ -176,6 +179,7 @@ class TradingBot:
         self.trailing_tp = None
         self.open_timestamp = None
         self.chart_position = None
+        self.tp_target = None
         print(f"[CLOSED] {side.upper()} position closed.")
 
 
@@ -190,5 +194,6 @@ class TradingBot:
         self.trailing_tp = None
         self.chart_position = None
         self.open_timestamp = None
+        self.tp_target = None
         msg=f"[DCA] Added more to {side} before closing"
         print(msg)
