@@ -86,7 +86,7 @@ class TradingBot:
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
 
-            self.open_timestamp = datetime.utcnow().isoformat()
+            self.open_timestamp = datetime.now(timezone.utc).isoformat()
 
             
             msg = f"[SHORT] Opened at {price}"
