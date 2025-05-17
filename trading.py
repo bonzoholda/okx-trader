@@ -117,7 +117,7 @@ class TradingBot:
 
         
         # --- Trailing TP ---
-        if change >= TP_THRESHOLD + TRAIL_TRIGGER:
+        if change >= (TP_THRESHOLD + TRAIL_TRIGGER):
             if self.active_position == "long":
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
@@ -125,7 +125,7 @@ class TradingBot:
             msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
             #return msg
-        elif change < TP_THRESHOLD + TRAIL_TRIGGER:
+        elif change < (TP_THRESHOLD + TRAIL_TRIGGER):
 
             # --- TP reached but not enough for full trailing ---
             if change >= TP_THRESHOLD:
@@ -137,10 +137,14 @@ class TradingBot:
                     msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
                     print(msg)
                     #return msg 
-            else:
-                msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}"
-                print(msg)
-                return msg                
+            elif change < TP_THRESHOLD and not self.trailing_tp:
+                # --- DCA on SL ---
+                if change <= SL_THRESHOLD:
+                    self.dca_and_close()
+                else :
+                    msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}"
+                    print(msg)
+                    return msg                
                 
 
         # --- Close at trailing TP ---
@@ -149,9 +153,7 @@ class TradingBot:
         elif self.active_position == "short" and price > self.trailing_tp:
             self.close_position("short")
 
-        # --- DCA on SL ---
-        if change <= SL_THRESHOLD:
-            self.dca_and_close()
+
 
 
             
