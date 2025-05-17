@@ -75,6 +75,11 @@ def get_position_data():
         traceback.print_exc()
         return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
 
+@app.get("/position_tracker", response_class=HTMLResponse)
+async def position_tracker(request: Request):
+    return templates.TemplateResponse("position_tracker.html", {"request": request})
+
+
 @app.get("/api/portfolio")
 def get_portfolio_data():
     try:
