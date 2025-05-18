@@ -162,6 +162,8 @@ class TradingBot:
         elif self.active_position == "short" and self.trailing_tp <= updated_TP:
             updated_TP = self.trailing_tp
     
+        msg=f"[CHECKING] Trying to see if updated_TP gets crossed to close the position"
+        print(msg)    
         updated_price = client.get_price()
         if self.active_position == "long" and updated_price <= updated_TP and updated_price > self.tp_target:
             self.close_position("long")
