@@ -190,7 +190,17 @@ class TradingBot:
         self.tp_target = None
         print(f"[CLOSED] {side.upper()} position closed.")
 
+        # Reset the position tracker chart/bar labels
+        self.chart_position = {
+            "side": "",
+            "entry": None,
+            "tp": None,
+            "timestamp": None,
+            "current_price": None,
+            "live_pnl_percent": None
+        }
 
+    
     def dca_and_close(self):
         _, _, _, price = self.get_portfolio_value()
         dca_amount = self.calculate_amount(DCA_PERCENT, price)
