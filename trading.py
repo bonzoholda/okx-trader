@@ -118,6 +118,8 @@ class TradingBot:
             "live_pnl_percent": round(live_pnl * 100, 2)
         }
 
+        updated_TP = self.trailing_tp
+
         
         # --- Trailing TP ---
         if change >= (TP_THRESHOLD + TRAIL_TRIGGER):
@@ -125,6 +127,7 @@ class TradingBot:
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
+            
             msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
             print(msg)
        
@@ -150,10 +153,19 @@ class TradingBot:
                 
 
         # --- Close at trailing TP ---
+        if self.active_position == "long" and self.trailing_tp < updated_TP:
+            updated_TP = updated_TP
+        elif self.active_position == "long" and self.trailing_tp >= updated_TP:
+            updated_TP = self.trailing_tp
+        elif self.active_position == "short" and self.trailing_tp > updated_TP:
+            updated_TP = updated_TP
+        elif self.active_position == "short" and self.trailing_tp <= updated_TP:
+            updated_TP = self.trailing_tp
+    
         updated_price = client.get_price()
-        if self.active_position == "long" and updated_price <= self.trailing_tp and updated_price > self.tp_target:
+        if self.active_position == "long" and updated_price <= updated_TP and updated_price > self.tp_target:
             self.close_position("long")
-        elif self.active_position == "short" and updated_price >= self.trailing_tp and updated_price < self.tp_target:
+        elif self.active_position == "short" and updated_price >= updated_TP and updated_price < self.tp_target:
             self.close_position("short")
 
 
