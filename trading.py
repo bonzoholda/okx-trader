@@ -100,15 +100,17 @@ class TradingBot:
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-        
+    
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
-
+    
+        # --- Live PnL Calculation ---
         live_pnl = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             live_pnl = -live_pnl
-        
+    
+        # --- Record for chart tracking ---
         self.chart_position = {
             "side": self.active_position,
             "entry": self.entry_price,
@@ -117,60 +119,51 @@ class TradingBot:
             "current_price": price,
             "live_pnl_percent": round(live_pnl * 100, 2)
         }
-
-        updated_TP = self.trailing_tp
-
-        
-        # --- Trailing TP ---
+    
+        # --- Lock the current TP for this check ---
+        locked_tp = self.trailing_tp
+    
+        # --- Trailing logic ---
         if change >= (TP_THRESHOLD + TRAIL_TRIGGER):
             if self.active_position == "long":
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
-            
-            msg=f"[TRAILING] Updated TP: {self.trailing_tp}"
-            print(msg)
-       
-        elif change < (TP_THRESHOLD + TRAIL_TRIGGER):
-
-            # --- TP reached but not enough for full trailing ---
-            if change >= TP_THRESHOLD:
-                if self.active_position == "long":
-                    self.trailing_tp = price * (1 - TRAIL_BUFFER)
-                else:
-                    self.trailing_tp = price * (1 + TRAIL_BUFFER)
-                msg = f"[TP HIT] Activated static TP: {self.trailing_tp}"
-                print(msg)
-                 
-            elif change < TP_THRESHOLD:
-                # --- DCA on SL ---
-                if change <= SL_THRESHOLD:
-                    self.dca_and_close()
-                else :
-                    msg=f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}"
-                    print(msg)
-                    return msg                
-                
-
-        # --- Close at trailing TP ---
-        if self.active_position == "long" and self.trailing_tp < updated_TP:
-            updated_TP = updated_TP
-        elif self.active_position == "long" and self.trailing_tp >= updated_TP:
-            updated_TP = self.trailing_tp
-        elif self.active_position == "short" and self.trailing_tp > updated_TP:
-            updated_TP = updated_TP
-        elif self.active_position == "short" and self.trailing_tp <= updated_TP:
-            updated_TP = self.trailing_tp
+            print(f"[TRAILING] Updated TP: {self.trailing_tp}")
     
-        msg=f"[CHECKING] Trying to see if updated_TP gets crossed to close the position"
-        print(msg)    
+        elif change >= TP_THRESHOLD:
+            # Activate static TP with buffer
+            if self.active_position == "long":
+                self.trailing_tp = price * (1 - TRAIL_BUFFER)
+            else:
+                self.trailing_tp = price * (1 + TRAIL_BUFFER)
+            print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
+    
+        elif change <= SL_THRESHOLD:
+            self.dca_and_close()
+            return
+    
+        else:
+            # No TP/SL triggered yet, just monitoring
+            print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
+            return
+    
+        # --- Determine whether to lock new TP or keep previous ---
+        if self.active_position == "long":
+            if self.trailing_tp > locked_tp:
+                locked_tp = self.trailing_tp
+        elif self.active_position == "short":
+            if self.trailing_tp < locked_tp:
+                locked_tp = self.trailing_tp
+    
+        # --- Check if price has crossed locked TP (trailing stop loss) ---
         updated_price = client.get_price()
-        if self.active_position == "long" and updated_price <= updated_TP and updated_price > self.tp_target:
+        if self.active_position == "long" and updated_price <= locked_tp and updated_price > self.tp_target:
+            print(f"[EXIT] Long hit locked TP {locked_tp}, current price {updated_price}")
             self.close_position("long")
-        elif self.active_position == "short" and updated_price >= updated_TP and updated_price < self.tp_target:
+        elif self.active_position == "short" and updated_price >= locked_tp and updated_price < self.tp_target:
+            print(f"[EXIT] Short hit locked TP {locked_tp}, current price {updated_price}")
             self.close_position("short")
-
-
 
 
             
