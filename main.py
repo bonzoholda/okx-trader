@@ -141,8 +141,8 @@ def bot_loop():
 
             # Normalize signal
             signal_map = {
-                "long-divergence": "long",
-                "short-divergence": "short"
+                "long-divergence": "long-div predicted", #to activate div signal mentioned only long
+                "short-divergence": "short-div predicted" #to activate div signal mentioned only short
             }
             signal = signal_map.get(signal, signal)
 
