@@ -150,9 +150,10 @@ class TradingBot:
                 
 
         # --- Close at trailing TP ---
-        if self.active_position == "long" and price <= self.trailing_tp and price > self.tp_target:
+        updated_price = client.get_price()
+        if self.active_position == "long" and updated_price <= self.trailing_tp and updated_price > self.tp_target:
             self.close_position("long")
-        elif self.active_position == "short" and price >= self.trailing_tp and price < self.tp_target:
+        elif self.active_position == "short" and updated_price >= self.trailing_tp and updated_price < self.tp_target:
             self.close_position("short")
 
 
