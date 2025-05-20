@@ -96,55 +96,48 @@
 
   </div>
 
-  <script>
-    async function fetchPosition() {
-      const res = await fetch('/api/position');
-      const data = await res.json();
-      if (!data || !data.entry || !data.tp) {
-        document.getElementById("statusText").innerText = "No active position.";
-        return;
-      }
-
-      const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count } = data;
-
-      // Calculate percentage of current price between entry and TP/SL
-      let min = side === "long" ? entry * (1 + -0.05) : tp;
-      let max = side === "long" ? tp : entry * (1 + 0.05);
-      let value = Math.min(Math.max(current_price, min), max);
-      let percent = ((value - min) / (max - min)) * 100;
-
-      document.getElementById("bar").style.width = percent + "%";
-
-      document.getElementById("sl").innerText = side === "long"
-        ? (entry * (1 + -0.05)).toFixed(4)
-        : tp.toFixed(4);
-
-      document.getElementById("entry").innerText = entry.toFixed(4);
-      document.getElementById("tp").innerText = side === "long"
-        ? tp.toFixed(4)
-        : (entry * (1 + 0.05)).toFixed(4);
-
-      // Calculate duration since position was opened
-      const openedAt = new Date(timestamp);
-      const now = new Date();
-      const seconds = Math.floor((now - openedAt) / 1000);
-      const duration = seconds < 60
-        ? `${seconds}s`
-        : seconds < 3600
-          ? `${Math.floor(seconds / 60)}m ${seconds % 60}s`
-          : `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-
-      document.getElementById("statusText").innerText = 
-        `Position: ${side.toUpperCase()}, live PnL: ${live_pnl_percent}% — Active for: ${duration}`;
-
-      document.getElementById("tp_count").textContent = data.tp_count;
-      document.getElementById("dca_count").textContent = data.dca_count;
+<script>
+  async function fetchPosition() {
+    const res = await fetch('/api/position');
+    const data = await res.json();
+    if (!data || !data.entry || !data.tp) {
+      document.getElementById("statusText").innerText = "No active position.";
+      return;
     }
 
+    const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count, sl } = data;
 
+    // Calculate percentage of current price between SL and TP
+    let min = Math.min(tp, sl);
+    let max = Math.max(tp, sl);
+    let value = Math.min(Math.max(current_price, min), max);
+    let percent = ((value - min) / (max - min)) * 100;
+    document.getElementById("bar").style.width = percent + "%";
 
-    fetchPosition();
-    setInterval(fetchPosition, 5000);
-  </script>
+    document.getElementById("sl").innerText = sl.toFixed(4);
+    document.getElementById("entry").innerText = entry.toFixed(4);
+    document.getElementById("tp").innerText = tp.toFixed(4);
+
+    // Calculate duration since position was opened
+    const openedAt = new Date(timestamp);
+    const now = new Date();
+    const seconds = Math.floor((now - openedAt) / 1000);
+    const duration = seconds < 60
+      ? `${seconds}s`
+      : seconds < 3600
+        ? `${Math.floor(seconds / 60)}m ${seconds % 60}s`
+        : `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+
+    document.getElementById("statusText").innerText = 
+      `Position: ${side.toUpperCase()}, live PnL: ${live_pnl_percent}% — Active for: ${duration}`;
+
+    document.getElementById("tp_count").textContent = tp_count;
+    document.getElementById("dca_count").textContent = dca_count;
+  }
+
+  fetchPosition();
+  setInterval(fetchPosition, 5000);
+</script>
+
 </body>
 </html>
