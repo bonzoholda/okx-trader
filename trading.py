@@ -21,7 +21,7 @@ class TradingBot:
         self.tp_target = None
         self.tp_count = 0
         self.dca_count = 0
-                
+                        
 
     def fetch_signal(self):
         try:
@@ -112,7 +112,13 @@ class TradingBot:
         live_pnl = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             live_pnl = -live_pnl
-    
+
+        # --- calculate SL target
+        if self.active_position == "long":
+            sl_target = self.entry_price * (1-SL_THRESHOLD)
+        elif self.active_position == "short":
+            sl_target = self.entry_price * (1+SL_THRESHOLD)
+        
         # --- Record for chart tracking ---
         self.chart_position = {
             "side": self.active_position,
@@ -122,7 +128,8 @@ class TradingBot:
             "current_price": price,
             "live_pnl_percent": round(live_pnl * 100, 2),
             "tp_count": self.tp_count,
-            "dca_count": self.dca_count
+            "dca_count": self.dca_count,
+            "sl": sl_target
         }
     
         # --- Lock the current TP for this check ---
@@ -205,7 +212,8 @@ class TradingBot:
             "tp": None,
             "timestamp": None,
             "current_price": None,
-            "live_pnl_percent": None
+            "live_pnl_percent": None,
+            "sl": None
         }
 
     
