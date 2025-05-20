@@ -19,6 +19,9 @@ class TradingBot:
         self.chart_position = None
         self.open_timestamp = None
         self.tp_target = None
+        self.tp_count = 0
+        self.dca_count = 0
+                
 
     def fetch_signal(self):
         try:
@@ -117,7 +120,9 @@ class TradingBot:
             "tp": self.trailing_tp,
             "timestamp": self.open_timestamp,
             "current_price": price,
-            "live_pnl_percent": round(live_pnl * 100, 2)
+            "live_pnl_percent": round(live_pnl * 100, 2),
+            "tp_count": self.tp_count,
+            "dca_count": self.dca_count
         }
     
         # --- Lock the current TP for this check ---
@@ -140,6 +145,7 @@ class TradingBot:
             print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
     
         elif change <= SL_THRESHOLD:
+            self.dca_count += 1
             self.dca_and_close()
             return
     
@@ -160,9 +166,11 @@ class TradingBot:
         updated_price = client.get_price()
         if self.active_position == "long" and updated_price <= locked_tp and updated_price > self.tp_target:
             print(f"[EXIT] Long hit locked TP {locked_tp}, current price {updated_price}")
+            self.tp_count += 1
             self.close_position("long")
         elif self.active_position == "short" and updated_price >= locked_tp and updated_price < self.tp_target:
             print(f"[EXIT] Short hit locked TP {locked_tp}, current price {updated_price}")
+            self.tp_count += 1
             self.close_position("short")
 
 
