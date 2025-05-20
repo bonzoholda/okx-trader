@@ -115,9 +115,9 @@ class TradingBot:
 
         # --- calculate SL target
         if self.active_position == "long":
-            sl_target = self.entry_price * (1-SL_THRESHOLD)
-        elif self.active_position == "short":
             sl_target = self.entry_price * (1+SL_THRESHOLD)
+        elif self.active_position == "short":
+            sl_target = self.entry_price * (1-SL_THRESHOLD)
         
         # --- Record for chart tracking ---
         self.chart_position = {
