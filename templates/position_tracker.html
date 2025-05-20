@@ -88,6 +88,12 @@
     <div class="status" id="statusText">
       Loading position info...
     </div>
+
+    <div class="counters">
+      <p>✅ TP Hits: <span id="tp_count">0</span></p>
+      <p>🔁 DCA Events: <span id="dca_count">0</span></p>
+  </div>
+
   </div>
 
   <script>
@@ -99,7 +105,7 @@
         return;
       }
 
-      const { side, entry, tp, timestamp, current_price, live_pnl_percent } = data;
+      const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count } = data;
 
       // Calculate percentage of current price between entry and TP/SL
       let min = side === "long" ? entry * (1 + -0.05) : tp;
@@ -130,7 +136,12 @@
 
       document.getElementById("statusText").innerText = 
         `Position: ${side.toUpperCase()}, live PnL: ${live_pnl_percent}% — Active for: ${duration}`;
+
+      document.getElementById("tp_count").textContent = data.tp_count;
+      document.getElementById("dca_count").textContent = data.dca_count;
     }
+
+
 
     fetchPosition();
     setInterval(fetchPosition, 5000);
