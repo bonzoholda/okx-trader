@@ -243,5 +243,7 @@ class TradingBot:
             "timestamp": None,
             "current_price": None,
             "live_pnl_percent": None,
+            "tp_count": self.tp_count,
+            "dca_count": self.dca_count,            
             "sl": None
         }
