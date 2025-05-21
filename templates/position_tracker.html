@@ -102,31 +102,38 @@
     const data = await res.json();
     if (!data || !data.entry || !data.tp) {
       document.getElementById("statusText").innerText = "No active position.";
+      document.getElementById("bar").style.width = "0%";
+      document.getElementById("sl").innerText = "-";
+      document.getElementById("entry").innerText = "-";
+      document.getElementById("tp").innerText = "-";
+      document.getElementById("tp_count").textContent = "0";
+      document.getElementById("dca_count").textContent = "0";
       return;
     }
 
     const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count, sl } = data;
 
-    // Correct min/max for progress bar direction
-    let min, max;
+    // === Corrected bar calculation ===
+    let min, max, clamped, percent;
     if (side === "long") {
       min = sl;
       max = tp;
+      clamped = Math.min(Math.max(current_price, min), max);
+      percent = ((clamped - min) / (max - min)) * 100;
     } else {
       min = tp;
       max = sl;
+      clamped = Math.min(Math.max(current_price, min), max);
+      percent = 100 - ((clamped - min) / (max - min)) * 100;
     }
-
-    let value = Math.min(Math.max(current_price, Math.min(min, max)), Math.max(min, max));
-    let percent = ((value - min) / (max - min)) * 100;
     document.getElementById("bar").style.width = percent + "%";
 
-    // Set label values from API
-    document.getElementById("sl").innerText = sl.toFixed(4);
-    document.getElementById("entry").innerText = entry.toFixed(4);
-    document.getElementById("tp").innerText = tp.toFixed(4);
+    // === Set label values from API ===
+    document.getElementById("sl").innerText = parseFloat(sl).toFixed(4);
+    document.getElementById("entry").innerText = parseFloat(entry).toFixed(4);
+    document.getElementById("tp").innerText = parseFloat(tp).toFixed(4);
 
-    // Duration formatting
+    // === Duration formatting ===
     const openedAt = new Date(timestamp);
     const now = new Date();
     const seconds = Math.floor((now - openedAt) / 1000);
@@ -146,6 +153,7 @@
   fetchPosition();
   setInterval(fetchPosition, 5000);
 </script>
+
 
 
 </body>
