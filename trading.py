@@ -231,3 +231,15 @@ class TradingBot:
         self.tp_target = None
         msg=f"[DCA] Added more to {side} before closing"
         print(msg)
+
+
+        # Reset the position tracker chart/bar labels
+        self.chart_position = {
+            "side": "",
+            "entry": None,
+            "tp": None,
+            "timestamp": None,
+            "current_price": None,
+            "live_pnl_percent": None,
+            "sl": None
+        }
