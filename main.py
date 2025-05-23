@@ -126,13 +126,15 @@ def bot_loop():
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
 
+            # ---Checking portfolio growth before trading session
+            bot.check_portfolio_trailing()
+            
             signal = data.get("signal")
             pair = data.get("pair")
             log_event(f"[DEBUG] Received signal: {signal}, pair: {pair}")
 
             if bot.active_position:
-                # ---Checking portfolio growth before trading session
-                bot.check_portfolio_trailing()
+
                 log_event("[IDLE] Already in position. Skipping signal.")
                 price = client.get_price()
                 msg = bot.check_tp_sl(price)
