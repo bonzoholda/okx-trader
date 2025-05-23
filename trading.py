@@ -10,10 +10,9 @@ from config import (
 
 client = OKXClient()
 
-
 class TradingBot:
     def __init__(self):
-        self.active_position = None  # "long" or "short"
+        self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
         self.chart_position = None
@@ -21,7 +20,11 @@ class TradingBot:
         self.tp_target = None
         self.tp_count = 0
         self.dca_count = 0
-                        
+
+        self.initial_portfolio_value = self.get_portfolio_value()[0]  # permanent for display
+        self.init_tracking_point = self.initial_portfolio_value       # updated on each force sell
+        self.tracking_trigger = self.init_tracking_point
+        self.tracking_active = False
 
     def fetch_signal(self):
         try:
@@ -33,93 +36,91 @@ class TradingBot:
         return None
 
     def get_portfolio_value(self):
-        pi = client.get_balance(QUOTE_CURRENCY)       # e.g. PI
-        usdt = client.get_balance(BASE_CURRENCY)    # e.g. USDT
+        pi = client.get_balance(QUOTE_CURRENCY)
+        usdt = client.get_balance(BASE_CURRENCY)
         price = client.get_price()
         return usdt + (pi * price), usdt, pi, price
 
     def calculate_amount(self, percent, price):
         portfolio_value, _, _, _ = self.get_portfolio_value()
         usdt_value = portfolio_value * percent
-        return usdt_value / price  # amount in BASE_CURRENCY
+        return usdt_value / price
+
+    def force_sell_all(self):
+        _, _, pi_balance, _ = self.get_portfolio_value()
+        if pi_balance > 0:
+            result = client.place_order("short", pi_balance)
+            print(f"[FORCE SELL] Sold {pi_balance} PI to lock portfolio growth.")
+        else:
+            print("[FORCE SELL] No PI to sell.")
+
+    def check_portfolio_trailing(self):
+        current_value, _, pi_balance, _ = self.get_portfolio_value()
+
+        if not self.tracking_active and current_value > self.init_tracking_point * 1.005:
+            self.tracking_active = True
+            print("[TRAILING] Growth threshold reached. Tracking activated.")
+
+        if self.tracking_active and current_value > self.init_tracking_point:
+            self.init_tracking_point = current_value
+            self.tracking_trigger = self.init_tracking_point * 0.998
+
+        if self.tracking_active and current_value < self.tracking_trigger and pi_balance > 0:
+            print("[TRAILING EXIT] Force sell triggered.")
+            self.force_sell_all()
+            self.init_tracking_point = self.get_portfolio_value()[0]
+            self.tracking_trigger = self.init_tracking_point
+            self.tracking_active = False
 
     def open_position(self, signal, price):
         portfolio_value, usdt, pi, _ = self.get_portfolio_value()
-    
-        # --- LONG ---
+
         if signal == "long":
             if usdt < LONG_THRESHOLD * portfolio_value:
-                msg = "Skipped trade, not enough USDT to buy"
-                print(msg)
-                return msg
-            
+                print("Skipped trade, not enough USDT to buy")
+                return
             amount = self.calculate_amount(ORDER_PERCENT, price)
             result = client.place_order("long", amount)
-    
             if result.get("code") != "0":
-                msg = f"[ERROR] LONG order failed: {result.get('msg', 'Unknown error')}"
-                print(msg)
-                return msg
-    
+                print(f"[ERROR] LONG order failed: {result.get('msg', 'Unknown error')}")
+                return
             self.active_position = "long"
             self.entry_price = price
             self.trailing_tp = price * (1 + TP_THRESHOLD)
             self.tp_target = self.trailing_tp
-
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
-            
-            msg = f"[LONG] Opened at {price}"
-            print(msg)
-            return msg
-    
-        # --- SHORT ---
+            print(f"[LONG] Opened at {price}")
+
         elif signal == "short":
             if pi * price < SHORT_THRESHOLD * portfolio_value:
-                msg = "Skipped trade, not enough PI to sell"
-                print(msg)
-                return msg
-    
+                print("Skipped trade, not enough PI to sell")
+                return
             amount = self.calculate_amount(ORDER_PERCENT, price)
             result = client.place_order("short", amount)
-    
             if result.get("code") != "0":
-                msg = f"[ERROR] SHORT order failed: {result.get('msg', 'Unknown error')}"
-                print(msg)
-                return msg
-    
+                print(f"[ERROR] SHORT order failed: {result.get('msg', 'Unknown error')}")
+                return
             self.active_position = "short"
             self.entry_price = price
             self.trailing_tp = price * (1 - TP_THRESHOLD)
             self.tp_target = self.trailing_tp
-
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
+            print(f"[SHORT] Opened at {price}")
 
-            
-            msg = f"[SHORT] Opened at {price}"
-            print(msg)
-            return msg
-
-    
     def check_tp_sl(self, price):
         if not self.active_position or not self.entry_price:
             return
-    
+
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
-    
-        # --- Live PnL Calculation ---
+
         live_pnl = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             live_pnl = -live_pnl
 
-        # --- calculate SL target
-        if self.active_position == "long":
-            sl_target = self.entry_price * (1+SL_THRESHOLD)
-        elif self.active_position == "short":
-            sl_target = self.entry_price * (1-SL_THRESHOLD)
-        
-        # --- Record for chart tracking ---
+        sl_target = self.entry_price * (1 + SL_THRESHOLD) if self.active_position == "long" else self.entry_price * (1 - SL_THRESHOLD)
+
         self.chart_position = {
             "side": self.active_position,
             "entry": self.entry_price,
@@ -131,45 +132,37 @@ class TradingBot:
             "dca_count": self.dca_count,
             "sl": sl_target
         }
-    
-        # --- Lock the current TP for this check ---
+
         locked_tp = self.trailing_tp
-    
-        # --- Trailing logic ---
+
         if change >= (TP_THRESHOLD + TRAIL_TRIGGER):
             if self.active_position == "long":
                 self.trailing_tp = max(self.trailing_tp, price - TRAIL_TRIGGER * price)
             else:
                 self.trailing_tp = min(self.trailing_tp, price + TRAIL_TRIGGER * price)
             print(f"[TRAILING] Updated TP: {self.trailing_tp}")
-    
+
         elif change >= TP_THRESHOLD:
-            # Activate static TP with buffer
             if self.active_position == "long":
                 self.trailing_tp = price * (1 - TRAIL_BUFFER)
             else:
                 self.trailing_tp = price * (1 + TRAIL_BUFFER)
             print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
-    
+
         elif change <= SL_THRESHOLD:
             self.dca_count += 1
             self.dca_and_close()
             return
-    
+
         else:
-            # No TP/SL triggered yet, just monitoring
             print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
             return
-    
-        # --- Determine whether to lock new TP or keep previous ---
-        if self.active_position == "long":
-            if self.trailing_tp > locked_tp:
-                locked_tp = self.trailing_tp
-        elif self.active_position == "short":
-            if self.trailing_tp < locked_tp:
-                locked_tp = self.trailing_tp
-    
-        # --- Check if price has crossed locked TP (trailing stop loss) ---
+
+        if self.active_position == "long" and self.trailing_tp > locked_tp:
+            locked_tp = self.trailing_tp
+        elif self.active_position == "short" and self.trailing_tp < locked_tp:
+            locked_tp = self.trailing_tp
+
         updated_price = client.get_price()
         if self.active_position == "long" and updated_price <= locked_tp and updated_price > self.tp_target:
             print(f"[EXIT] Long hit locked TP {locked_tp}, current price {updated_price}")
@@ -180,23 +173,12 @@ class TradingBot:
             self.tp_count += 1
             self.close_position("short")
 
-
-            
-        
     def close_position(self, side):
         price = client.get_price()
         amount = self.calculate_amount(ORDER_PERCENT, price)
-        # Try to place the reverse order
-        if side == "long":                   
-            success = client.place_order("short", amount)
-        else:
-            success = client.place_order("long", amount)
-            
+        success = client.place_order("short" if side == "long" else "long", amount)
         if not success:
             print("[ERROR] Failed to close position — order rejected.")
-            #return  # Don't reset state!
-    
-        # Only if success:
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
@@ -205,7 +187,6 @@ class TradingBot:
         self.tp_target = None
         print(f"[CLOSED] {side.upper()} position closed.")
 
-        # Reset the position tracker chart/bar labels
         self.chart_position = {
             "side": "",
             "entry": None,
@@ -214,28 +195,23 @@ class TradingBot:
             "current_price": None,
             "live_pnl_percent": None,
             "tp_count": self.tp_count,
-            "dca_count": self.dca_count,            
+            "dca_count": self.dca_count,
             "sl": None
         }
 
-    
     def dca_and_close(self):
         _, _, _, price = self.get_portfolio_value()
         dca_amount = self.calculate_amount(DCA_PERCENT, price)
         side = "long" if self.active_position == "long" else "short"
         client.place_order(side, dca_amount)
-
         self.active_position = None
         self.entry_price = None
         self.trailing_tp = None
         self.chart_position = None
         self.open_timestamp = None
         self.tp_target = None
-        msg=f"[DCA] Added more to {side} before closing"
-        print(msg)
+        print(f"[DCA] Added more to {side} before closing")
 
-
-        # Reset the position tracker chart/bar labels
         self.chart_position = {
             "side": "",
             "entry": None,
@@ -244,6 +220,6 @@ class TradingBot:
             "current_price": None,
             "live_pnl_percent": None,
             "tp_count": self.tp_count,
-            "dca_count": self.dca_count,            
+            "dca_count": self.dca_count,
             "sl": None
         }
