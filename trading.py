@@ -71,6 +71,7 @@ class TradingBot:
             self.init_tracking_point = self.get_portfolio_value()[0]
             self.tracking_trigger = self.init_tracking_point
             self.tracking_active = False
+            self.reset_session()
 
     def open_position(self, signal, price):
         portfolio_value, usdt, pi, _ = self.get_portfolio_value()
@@ -211,6 +212,28 @@ class TradingBot:
         self.open_timestamp = None
         self.tp_target = None
         print(f"[DCA] Added more to {side} before closing")
+
+        self.chart_position = {
+            "side": "",
+            "entry": None,
+            "tp": None,
+            "timestamp": None,
+            "current_price": None,
+            "live_pnl_percent": None,
+            "tp_count": self.tp_count,
+            "dca_count": self.dca_count,
+            "sl": None
+        }
+
+    def reset_session(self):
+        
+        self.active_position = None
+        self.entry_price = None
+        self.trailing_tp = None
+        self.open_timestamp = None
+        self.chart_position = None
+        self.tp_target = None
+        print(f"[RESET] Trading session reset after force sell")
 
         self.chart_position = {
             "side": "",
