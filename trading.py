@@ -113,7 +113,8 @@ class TradingBot:
             if pi * price < SHORT_THRESHOLD * portfolio_value:
                 print("Skipped trade, not enough PI to sell")
                 return
-            amount = self.calculate_amount(ORDER_PERCENT, price)
+            quote_amount = self.calculate_amount(ORDER_PERCENT, price)
+            amount = quote_amount / price  # convert to base amount
             result = client.place_order("short", amount)
             if result.get("code") != "0":
                 print(f"[ERROR] SHORT order failed: {result.get('msg', 'Unknown error')}")
@@ -193,7 +194,13 @@ class TradingBot:
 
     def close_position(self, side):
         price = client.get_price()
-        amount = self.calculate_amount(ORDER_PERCENT, price)
+
+        if side == "short":
+            amount = self.calculate_amount(ORDER_PERCENT, price)  # quote-based
+        else:
+            quote_amount = self.calculate_amount(ORDER_PERCENT, price)
+            amount = quote_amount / price  # convert to base amount   
+            
         success = client.place_order("short" if side == "long" else "long", amount)
         if not success:
             print("[ERROR] Failed to close position — order rejected.")
@@ -219,8 +226,16 @@ class TradingBot:
 
     def dca_and_close(self):
         _, _, _, price = self.get_portfolio_value()
+        
         dca_amount = self.calculate_amount(DCA_PERCENT, price)
         side = "long" if self.active_position == "long" else "short"
+
+        if side == "long":
+            dca_amount = self.calculate_amount(DCA_PERCENT, price)  # quote-based
+        else:
+            quote_amount = self.calculate_amount(DCA_PERCENT, price)
+            dca_amount = quote_amount / price  # convert to base amount
+        
         client.place_order(side, dca_amount)
         self.active_position = None
         self.entry_price = None
