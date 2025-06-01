@@ -57,7 +57,7 @@ class TradingBot:
     def check_portfolio_trailing(self):
         current_value, _, pi_balance, _ = self.get_portfolio_value()
 
-        if not self.tracking_active and current_value > self.init_tracking_point * 1.005:
+        if not self.tracking_active and current_value > self.init_tracking_point * 1.0075:
             self.tracking_active = True
             print("[TRAILING] Growth threshold reached. Tracking activated.")
 
@@ -72,6 +72,22 @@ class TradingBot:
             self.tracking_trigger = self.init_tracking_point
             self.tracking_active = False
             self.reset_session()
+
+    def check_portfolio_shrink(self):
+        current_value, _, pi_balance, _ = self.get_portfolio_value()
+
+        if not self.tracking_active and current_value < self.init_tracking_point * 0.995:
+            self.tracking_active = True
+            self.tracking_trigger = self.init_tracking_point * 0.995
+            print("[SHRINK] Shrink threshold reached. Emergency exit activated.")
+
+        if self.tracking_active and current_value <= self.tracking_trigger and pi_balance > 0:
+            print("[SHRINK EXIT] Force sell triggered.")
+            self.force_sell_all()
+            self.init_tracking_point = self.get_portfolio_value()[0]
+            self.tracking_trigger = self.init_tracking_point
+            self.tracking_active = False
+            self.reset_session()    
 
     def open_position(self, signal, price):
         portfolio_value, usdt, pi, _ = self.get_portfolio_value()
