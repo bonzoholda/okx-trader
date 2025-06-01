@@ -128,6 +128,7 @@ def bot_loop():
 
             # ---Checking portfolio growth before trading session
             bot.check_portfolio_trailing()
+            bot.check_portfolio_shrink()
             
             signal = data.get("signal")
             pair = data.get("pair")
