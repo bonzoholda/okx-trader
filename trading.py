@@ -25,6 +25,7 @@ class TradingBot:
         self.init_tracking_point = self.initial_portfolio_value       # updated on each force sell
         self.tracking_trigger = self.init_tracking_point
         self.tracking_active = False
+        self.shrinking_active = False
 
     def fetch_signal(self):
         try:
@@ -76,17 +77,17 @@ class TradingBot:
     def check_portfolio_shrink(self):
         current_value, _, pi_balance, _ = self.get_portfolio_value()
 
-        if not self.tracking_active and current_value < self.init_tracking_point * 0.995:
-            self.tracking_active = True
+        if not self.shrinking_active and current_value < self.init_tracking_point * 0.995:
+            self.shrinking_active = True
             self.tracking_trigger = self.init_tracking_point * 0.995
             print("[SHRINK] Shrink threshold reached. Emergency exit activated.")
 
-        if self.tracking_active and current_value <= self.tracking_trigger and pi_balance > 0:
+        if self.shrinking_active and current_value <= self.tracking_trigger and pi_balance > 0:
             print("[SHRINK EXIT] Force sell triggered.")
             self.force_sell_all()
             self.init_tracking_point = self.get_portfolio_value()[0]
             self.tracking_trigger = self.init_tracking_point
-            self.tracking_active = False
+            self.shrinking_active = False
             self.reset_session()    
 
     def open_position(self, signal, price):
