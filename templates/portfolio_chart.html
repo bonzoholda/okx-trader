@@ -19,7 +19,7 @@
     #chart-container {
       width: 600px;
       max-width: 90vw;
-      height: 300px;
+      height: 500px;
       background-color: #1e1e1e;
       border-radius: 12px;
       padding: 20px;
@@ -33,10 +33,52 @@
       width: 600px;
       max-width: 90vw;
     }
+    .grid{
+      text-align: center;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: #222222;
+      border-radius: 12px;
+      padding: 16px 24px;
+      text-align: center;
+      margin: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+    }    
+    .label {
+      font-size: 1rem;
+      color: darkorange;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <div id="chart-container">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-zinc-800 p-4 rounded-xl shadow">
+          <p class="label">Initial Portfolio</p>
+          <p class="value" id="initial">$0.00</p>
+        </div>
+        <div class="bg-zinc-800 p-4 rounded-xl shadow">
+          <p class="label">Changes</p>
+          <p class="value" id="growth_percent">0.00%</p>
+        </div>
+      </div>    
+    
     <canvas id="portfolioGrowthChart"></canvas>
   </div>
   <div id="uptime">
@@ -50,7 +92,7 @@
     const res = await fetch("/api/portfolio");
     const json = await res.json();
 
-    const { growth_percent, timestamp, init_timestamp } = json;
+    const { growth_percent, timestamp, init_timestamp, initial } = json;
 
     const ts = new Date(timestamp);
     const label = ts.toLocaleTimeString();
@@ -80,7 +122,9 @@
     formattedDuration += `${seconds}s`;
 
     document.getElementById("uptime").textContent = `Bot running for: ${formattedDuration}`;
-
+    document.getElementById("initial").textContent = "$" + json.initial;
+    document.getElementById("growth_percent").textContent = json.growth_percent + "%";
+    
     if (!window.portfolioChart) {
       window.portfolioChart = new Chart(ctx, {
         type: 'line',
