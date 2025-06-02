@@ -60,6 +60,18 @@
       text-align: center;
     }
 
+    .counters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .counters p {
+      flex: 1 1 45%; /* two columns, with some space */
+      margin: 0;
+    }
+
+
     .pulse {
       animation: pulseGlow 1.5s infinite ease-in-out;
     }
@@ -89,12 +101,13 @@
       Loading position info...
     </div>
 
-    <div class="counters">
-      <p>✅ TP Hits: <span id="tp_count">0</span></p>
-      <p>🔁 DCA Events: <span id="dca_count">0</span></p>
-      <p>💰 Profit Capture: <span id="profit_capture">0</span></p>
-      <p>💸 Loss Limit: <span id="loss_limit">0</span></p>
+  <div class="counters">
+    <p>✅ TP Hits: <span id="tp_count">0</span></p>
+    <p>🔁 DCA Events: <span id="dca_count">0</span></p>
+    <p>💰 Profit Capture: <span id="profit_capture">0</span></p>
+    <p>💸 Loss Limit: <span id="loss_limit">0</span></p>
   </div>
+
 
   </div>
 
