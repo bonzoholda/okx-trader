@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>  
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600&display=swap" rel="stylesheet">  
   <title>Portfolio Growth Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -75,17 +77,18 @@
 <body>
 
   <div class="container">
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <div class="bg-zinc-800 p-4 rounded-xl shadow">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div class="card bg-zinc-800 p-4 rounded-xl shadow">
         <p class="label">Initial Portfolio</p>
         <p class="value" id="initial">$0.00</p>
       </div>
-      <div class="bg-zinc-800 p-4 rounded-xl shadow">
+      <div class="card bg-zinc-800 p-4 rounded-xl shadow">
         <p class="label">Changes</p>
         <p class="value" id="growth_percent">0.00%</p>
       </div>
     </div>
   </div>
+
 
   
   <div id="chart-container">  
