@@ -20,6 +20,8 @@ class TradingBot:
         self.tp_target = None
         self.tp_count = 0
         self.dca_count = 0
+        self.profit_capture = 0
+        self.loss_limit = 0
 
         self.initial_portfolio_value = self.get_portfolio_value()[0]  # permanent for display
         self.init_tracking_point = self.initial_portfolio_value       # updated on each force sell
@@ -69,6 +71,7 @@ class TradingBot:
         if self.tracking_active and current_value < self.tracking_trigger and pi_balance > 0:
             print("[TRAILING EXIT] Force sell triggered.")
             self.force_sell_all()
+            self.profit_capture += 1
             self.init_tracking_point = self.get_portfolio_value()[0]
             self.tracking_trigger = self.init_tracking_point
             self.tracking_active = False
@@ -85,6 +88,7 @@ class TradingBot:
         if self.shrinking_active and current_value <= self.tracking_trigger and pi_balance > 0:
             print("[SHRINK EXIT] Force sell triggered.")
             self.force_sell_all()
+            self.loss_limit += 1
             self.init_tracking_point = self.get_portfolio_value()[0]
             self.tracking_trigger = self.init_tracking_point
             self.shrinking_active = False
@@ -149,7 +153,9 @@ class TradingBot:
             "live_pnl_percent": round(live_pnl * 100, 2),
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": sl_target
+            "sl": sl_target,
+            "profit_capture": self.profit_capture,
+            "loss_limit": self.loss_limit
         }
 
         locked_tp = self.trailing_tp
@@ -221,7 +227,9 @@ class TradingBot:
             "live_pnl_percent": None,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None
+            "sl": None,
+            "profit_capture": self.profit_capture,
+            "loss_limit": self.loss_limit            
         }
 
     def dca_and_close(self):
@@ -254,7 +262,9 @@ class TradingBot:
             "live_pnl_percent": None,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None
+            "sl": None,
+            "profit_capture": self.profit_capture,
+            "loss_limit": self.loss_limit            
         }
 
     def reset_session(self):
@@ -276,5 +286,7 @@ class TradingBot:
             "live_pnl_percent": None,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None
+            "sl": None,
+            "profit_capture": self.profit_capture,
+            "loss_limit": self.loss_limit            
         }
