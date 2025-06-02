@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600&display=swap" rel="stylesheet">  
   <title>Portfolio Growth Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       background-color: #121212;
       color: #eee;
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Exo 2', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -32,6 +33,12 @@
       color: #ccc;
       width: 600px;
       max-width: 90vw;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .grid{
       text-align: center;
@@ -66,8 +73,9 @@
   </style>
 </head>
 <body>
-  <div id="chart-container">
 
+
+  <div class="container">  
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-zinc-800 p-4 rounded-xl shadow">
           <p class="label">Initial Portfolio</p>
@@ -77,8 +85,10 @@
           <p class="label">Changes</p>
           <p class="value" id="growth_percent">0.00%</p>
         </div>
-      </div>    
-    
+      </div>
+  </div>
+  
+  <div id="chart-container">  
     <canvas id="portfolioGrowthChart"></canvas>
   </div>
   <div id="uptime">
