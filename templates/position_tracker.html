@@ -92,6 +92,8 @@
     <div class="counters">
       <p>✅ TP Hits: <span id="tp_count">0</span></p>
       <p>🔁 DCA Events: <span id="dca_count">0</span></p>
+      <p>💰 Profit Capture: <span id="profit_capture">0</span></p>
+      <p>💸 Loss Limit: <span id="loss_limit">0</span></p>
   </div>
 
   </div>
@@ -108,6 +110,8 @@
       document.getElementById("tp").innerText = "-";
       document.getElementById("tp_count").textContent = tp_count;
       document.getElementById("dca_count").textContent = dca_count;
+      document.getElementById("profit_capture").textContent = profit_capture;
+      document.getElementById("loss_limit").textContent = loss_limit;
       return;
     }
 
