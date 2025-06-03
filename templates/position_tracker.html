@@ -130,7 +130,7 @@
       return;
     }
 
-    const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count, sl } = data;
+    const { side, entry, tp, timestamp, current_price, live_pnl_percent, tp_count, dca_count, sl, profit_capture, loss_limit } = data;
 
     // === Corrected bar calculation ===
     let min, max, clamped, percent;
