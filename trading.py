@@ -60,7 +60,7 @@ class TradingBot:
     def check_portfolio_trailing(self):
         current_value, _, pi_balance, _ = self.get_portfolio_value()
 
-        if not self.tracking_active and current_value > self.init_tracking_point * 1.0075:
+        if not self.tracking_active and current_value > self.init_tracking_point * 1.005:
             self.tracking_active = True
             print("[TRAILING] Growth threshold reached. Tracking activated.")
 
