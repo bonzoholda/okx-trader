@@ -220,14 +220,14 @@ class TradingBot:
 
         self.chart_position = {
             "side": "",
-            "entry": None,
-            "tp": None,
-            "timestamp": None,
-            "current_price": None,
-            "live_pnl_percent": None,
+            "entry": 0,
+            "tp": 0,
+            "timestamp": 0,
+            "current_price": 0,
+            "live_pnl_percent": 0,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None,
+            "sl": 0,
             "profit_capture": self.profit_capture,
             "loss_limit": self.loss_limit            
         }
@@ -255,14 +255,14 @@ class TradingBot:
 
         self.chart_position = {
             "side": "",
-            "entry": None,
-            "tp": None,
-            "timestamp": None,
-            "current_price": None,
-            "live_pnl_percent": None,
+            "entry": 0,
+            "tp": 0,
+            "timestamp": 0,
+            "current_price": 0,
+            "live_pnl_percent": 0,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None,
+            "sl": 0,
             "profit_capture": self.profit_capture,
             "loss_limit": self.loss_limit            
         }
@@ -279,14 +279,14 @@ class TradingBot:
 
         self.chart_position = {
             "side": "",
-            "entry": None,
-            "tp": None,
-            "timestamp": None,
-            "current_price": None,
-            "live_pnl_percent": None,
+            "entry": 0,
+            "tp": 0,
+            "timestamp": 0,
+            "current_price": 0,
+            "live_pnl_percent": 0,
             "tp_count": self.tp_count,
             "dca_count": self.dca_count,
-            "sl": None,
+            "sl": 0,
             "profit_capture": self.profit_capture,
             "loss_limit": self.loss_limit            
         }
