@@ -66,7 +66,7 @@ class TradingBot:
 
         if self.tracking_active and current_value > self.init_tracking_point:
             self.init_tracking_point = current_value
-            self.tracking_trigger = self.init_tracking_point * 0.998
+            self.tracking_trigger = self.init_tracking_point * 0.999
 
         if self.tracking_active and current_value < self.tracking_trigger and pi_balance > 0:
             print("[TRAILING EXIT] Force sell triggered.")
