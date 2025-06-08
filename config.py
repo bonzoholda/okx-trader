@@ -24,9 +24,9 @@ DCA_PERCENT = 0.18           # 18% for DCA on SL trigger
 LONG_THRESHOLD = 0.30           # USDT must be > 30% of portfolio to open long
 SHORT_THRESHOLD = 0.30          # PI must be > 30% of portfolio to open short
 
-TP_THRESHOLD = 0.01          # 3% TP
-SL_THRESHOLD = -0.03           # -5% SL triggers DCA
-TRAIL_TRIGGER = 0.01     # Trailing triggers 1% above TP
+TP_THRESHOLD = 0.01          # 1% TP
+SL_THRESHOLD = -0.02           # -2% SL triggers DCA
+TRAIL_TRIGGER = 0.005     # Trailing triggers 0.5% above TP
 TRAILING_STEP_PCT = 0.005       # Update TP if price rises/falls further
 TRAIL_BUFFER = 0.001  # 0.1%
 
