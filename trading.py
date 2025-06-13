@@ -4,9 +4,11 @@ from datetime import datetime, timezone
 
 from config import (
     SIGNAL_SERVER_URL, SYMBOL, BASE_CURRENCY, QUOTE_CURRENCY,
-    ORDER_PERCENT, DCA_PERCENT, TP_THRESHOLD, SL_THRESHOLD, TRAIL_TRIGGER, TRAIL_BUFFER,
+    ORDER_PERCENT, DCA_PERCENT, TRAIL_TRIGGER, TRAIL_BUFFER,
     LONG_THRESHOLD, SHORT_THRESHOLD
 )
+
+# testing, skipped from config import TP_THRESHOLD, SL_THRESHOLD and use api/signal data
 
 client = OKXClient()
 
@@ -29,11 +31,14 @@ class TradingBot:
         self.tracking_active = False
         self.shrinking_active = False
 
+        self.tp_threshold = 0
+        self.sl_threshold = 0
+
     def fetch_signal(self):
         try:
             res = client.session.get(SIGNAL_SERVER_URL)
             if res.status_code == 200:
-                return res.json().get("signal")
+                return res.json()  # Return full JSON dict, not just signal string
         except Exception as e:
             print(f"[ERROR] Failed to fetch signal: {e}")
         return None
@@ -97,7 +102,22 @@ class TradingBot:
     def open_position(self, signal, price):
         portfolio_value, usdt, pi, _ = self.get_portfolio_value()
 
+        signal_data = self.fetch_signal()
+        
+        if signal_data:
+            signal_type = signal_data.get("signal")
+            signal_price = signal_data.get("price")
+            tp = signal_data.get("tp")
+            sl = signal_data.get("sl")
+        
+            print(f"Signal: {signal_type}, Entry: {signal_price}, TP: {tp}, SL: {sl}")
+            signal = signal_type
+            self.tp_threshold = tp
+            self.sl_threshold = sl
+        
         if signal == "long":
+            TP_THRESHOLD = self.tp_threshold
+            
             if usdt < LONG_THRESHOLD * portfolio_value:
                 print("Skipped trade, not enough USDT to buy")
                 return
@@ -114,6 +134,8 @@ class TradingBot:
             print(f"[LONG] Opened at {price}")
 
         elif signal == "short":
+            TP_THRESHOLD = self.tp_threshold
+            
             if pi * price < SHORT_THRESHOLD * portfolio_value:
                 print("Skipped trade, not enough PI to sell")
                 return
@@ -131,6 +153,9 @@ class TradingBot:
             print(f"[SHORT] Opened at {price}")
 
     def check_tp_sl(self, price):
+        TP_THRESHOLD = self.tp_threshold
+        SL_THRESHOLD = self.sl_threshold * 3
+        
         if not self.active_position or not self.entry_price:
             return
 
@@ -216,6 +241,10 @@ class TradingBot:
         self.open_timestamp = None
         self.chart_position = None
         self.tp_target = None
+
+        self.tp_threshold = 0
+        self.sl_threshold = 0
+        
         print(f"[CLOSED] {side.upper()} position closed.")
 
         self.chart_position = {
@@ -251,6 +280,10 @@ class TradingBot:
         self.chart_position = None
         self.open_timestamp = None
         self.tp_target = None
+
+        self.tp_threshold = 0
+        self.sl_threshold = 0
+        
         print(f"[DCA] Added more to {side} before closing")
 
         self.chart_position = {
@@ -275,6 +308,10 @@ class TradingBot:
         self.open_timestamp = None
         self.chart_position = None
         self.tp_target = None
+
+        self.tp_threshold = 0
+        self.sl_threshold = 0
+        
         print(f"[RESET] Trading session reset after force sell")
 
         self.chart_position = {
