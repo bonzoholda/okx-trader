@@ -132,7 +132,7 @@ class TradingBot:
             self.tp_target = self.trailing_tp
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
             print(f"[LONG] Opened at {price}")
-            time.sleep(30)
+            time.sleep(15)
 
         elif signal == "short":
             TP_THRESHOLD = self.tp_threshold
@@ -152,6 +152,7 @@ class TradingBot:
             self.tp_target = self.trailing_tp
             self.open_timestamp = datetime.now(timezone.utc).isoformat()
             print(f"[SHORT] Opened at {price}")
+            time.sleep(15)
 
     def check_tp_sl(self, price):
         TP_THRESHOLD = self.tp_threshold
@@ -159,7 +160,8 @@ class TradingBot:
         
         if not self.active_position or not self.entry_price:
             return
-
+        
+        time.sleep(15)
         change = (price - self.entry_price) / self.entry_price
         if self.active_position == "short":
             change = -change
