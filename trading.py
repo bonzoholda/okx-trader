@@ -8,7 +8,7 @@ from config import (
     LONG_THRESHOLD, SHORT_THRESHOLD
 )
 
-# testing, skipped from config import TP_THRESHOLD, SL_THRESHOLD and use api/signal data
+from config import TP_DEFAULT, SL_DEFAULT
 
 client = OKXClient()
 
@@ -31,8 +31,8 @@ class TradingBot:
         self.tracking_active = False
         self.shrinking_active = False
 
-        self.tp_threshold = 0
-        self.sl_threshold = 0
+        self.tp_threshold = TP_DEFAULT
+        self.sl_threshold = SL_DEFAULT
 
     def fetch_signal(self):
         try:
@@ -242,8 +242,8 @@ class TradingBot:
         self.chart_position = None
         self.tp_target = None
 
-        self.tp_threshold = 0
-        self.sl_threshold = 0
+        self.tp_threshold = TP_DEFAULT
+        self.sl_threshold = SL_DEFAULT
         
         print(f"[CLOSED] {side.upper()} position closed.")
 
@@ -281,8 +281,8 @@ class TradingBot:
         self.open_timestamp = None
         self.tp_target = None
 
-        self.tp_threshold = 0
-        self.sl_threshold = 0
+        self.tp_threshold = TP_DEFAULT
+        self.sl_threshold = SL_DEFAULT
         
         print(f"[DCA] Added more to {side} before closing")
 
@@ -309,8 +309,8 @@ class TradingBot:
         self.chart_position = None
         self.tp_target = None
 
-        self.tp_threshold = 0
-        self.sl_threshold = 0
+        self.tp_threshold = TP_DEFAULT
+        self.sl_threshold = SL_DEFAULT
         
         print(f"[RESET] Trading session reset after force sell")
 
