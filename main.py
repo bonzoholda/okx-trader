@@ -173,6 +173,7 @@ def bot_loop():
             msg = bot.open_position(signal, price)
             if msg:
                 log_event(msg)
+                 time.sleep(POLL_INTERVAL)
 
         except Exception as e:
             log_event(f"[ERROR] Main loop logic failed: {e}")
