@@ -113,7 +113,7 @@ class TradingBot:
             print(f"Signal: {signal_type}, Entry: {signal_price}, TP: {tp}, SL: {sl}")
             signal = signal_type
             self.tp_threshold = tp
-            self.sl_threshold = sl * 3
+            self.sl_threshold = sl * -3
         
         if signal == "long":
             TP_THRESHOLD = self.tp_threshold
