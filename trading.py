@@ -210,16 +210,7 @@ class TradingBot:
         else:
             print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
             return
-
-        if self.active_position == "long" and price < sl_target:
-            self.dca_count += 1
-            self.dca_and_close()
-            return            
-
-        if self.active_position == "short" and price > sl_target:
-            self.dca_count += 1
-            self.dca_and_close()
-            return  
+  
             
         if self.active_position == "long" and self.trailing_tp > locked_tp:
             locked_tp = self.trailing_tp
@@ -231,6 +222,17 @@ class TradingBot:
             print(f"[EXIT] Long hit locked TP {locked_tp}, current price {updated_price}")
             self.tp_count += 1
             self.close_position("long")
+
+        elif self.active_position == "long" and updated_price <= sl_target:
+            self.dca_count += 1
+            self.dca_and_close()
+            return            
+
+        elif self.active_position == "short" and updated_price >= sl_target:
+            self.dca_count += 1
+            self.dca_and_close()
+            return
+        
         elif self.active_position == "short" and updated_price >= locked_tp and updated_price < self.tp_target:
             print(f"[EXIT] Short hit locked TP {locked_tp}, current price {updated_price}")
             self.tp_count += 1
