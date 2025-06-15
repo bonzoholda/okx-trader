@@ -202,10 +202,10 @@ class TradingBot:
                 self.trailing_tp = price * (1 + TRAIL_BUFFER)
             print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
 
-        #elif change <= SL_THRESHOLD:
-        #    self.dca_count += 1
-        #    self.dca_and_close()
-        #    return
+        elif change <= SL_THRESHOLD:
+            self.dca_count += 1
+            self.dca_and_close()
+            return
         
         else:
             print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
@@ -223,15 +223,15 @@ class TradingBot:
             self.tp_count += 1
             self.close_position("long")
 
-        elif self.active_position == "long" and updated_price <= sl_target:
-            self.dca_count += 1
-            self.dca_and_close()
-            return            
+        #elif self.active_position == "long" and updated_price <= sl_target:
+        #    self.dca_count += 1
+        #   self.dca_and_close()
+        #   return            
 
-        elif self.active_position == "short" and updated_price >= sl_target:
-            self.dca_count += 1
-            self.dca_and_close()
-            return
+        #elif self.active_position == "short" and updated_price >= sl_target:
+        #    self.dca_count += 1
+        #    self.dca_and_close()
+        #    return
         
         elif self.active_position == "short" and updated_price >= locked_tp and updated_price < self.tp_target:
             print(f"[EXIT] Short hit locked TP {locked_tp}, current price {updated_price}")
