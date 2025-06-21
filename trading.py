@@ -209,8 +209,8 @@ class TradingBot:
         elif change <= SL_THRESHOLD:
             if self.active_position == "long" and price <= sl_target:
                 self.dca_count += 1
-               self.dca_and_close()
-               return            
+                self.dca_and_close()
+                return            
     
             elif self.active_position == "short" and price >= sl_target:
                 self.dca_count += 1
