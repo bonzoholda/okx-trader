@@ -260,6 +260,7 @@ class TradingBot:
 
         self.tp_threshold = TP_DEFAULT
         self.sl_threshold = SL_DEFAULT
+        self.dca_target = 0        
         
         print(f"[CLOSED] {side.upper()} position closed.")
 
@@ -299,6 +300,7 @@ class TradingBot:
 
         self.tp_threshold = TP_DEFAULT
         self.sl_threshold = SL_DEFAULT
+        self.dca_target = 0        
         
         print(f"[DCA] Added more to {side} before closing")
 
@@ -327,6 +329,7 @@ class TradingBot:
 
         self.tp_threshold = TP_DEFAULT
         self.sl_threshold = SL_DEFAULT
+        self.dca_target = 0        
         
         print(f"[RESET] Trading session reset after force sell")
 
