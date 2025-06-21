@@ -33,6 +33,7 @@ class TradingBot:
 
         self.tp_threshold = TP_DEFAULT
         self.sl_threshold = SL_DEFAULT
+        self.dca_target = 0
 
     def fetch_signal(self):
         try:
@@ -109,11 +110,13 @@ class TradingBot:
             signal_price = signal_data.get("price")
             tp = signal_data.get("tp")
             sl = signal_data.get("sl")
+            dca_target = signal_data.get("dca_trigger")
         
-            print(f"Signal: {signal_type}, Entry: {signal_price}, TP: {tp}, SL: {sl}")
+            print(f"Signal: {signal_type}, Entry: {signal_price}, TP: {tp}, SL: {sl}, DCA: {dca_target}")
             signal = signal_type
             self.tp_threshold = tp
             self.sl_threshold = sl * -3
+            self.dca_target = dca_target
         
         if signal == "long":
             TP_THRESHOLD = self.tp_threshold
@@ -170,8 +173,9 @@ class TradingBot:
         if self.active_position == "short":
             live_pnl = -live_pnl
 
-        sl_target = self.entry_price * (1 + SL_THRESHOLD) if self.active_position == "long" else self.entry_price * (1 - SL_THRESHOLD)
-
+        #sl_target = self.entry_price * (1 + SL_THRESHOLD) if self.active_position == "long" else self.entry_price * (1 - SL_THRESHOLD)
+        sl_target = self.dca_target
+        
         self.chart_position = {
             "side": self.active_position,
             "entry": self.entry_price,
@@ -203,9 +207,15 @@ class TradingBot:
             print(f"[TP HIT] Activated static TP: {self.trailing_tp}")
 
         elif change <= SL_THRESHOLD:
-            self.dca_count += 1
-            self.dca_and_close()
-            return
+            if self.active_position == "long" and price <= sl_target:
+                self.dca_count += 1
+               self.dca_and_close()
+               return            
+    
+            elif self.active_position == "short" and price >= sl_target:
+                self.dca_count += 1
+                self.dca_and_close()
+                return            
         
         else:
             print(f"[MONITORING] Position: {self.active_position}, Entry: {self.entry_price}, TP: {self.trailing_tp} | Chart: {self.chart_position}")
@@ -223,15 +233,6 @@ class TradingBot:
             self.tp_count += 1
             self.close_position("long")
 
-        #elif self.active_position == "long" and updated_price <= sl_target:
-        #    self.dca_count += 1
-        #   self.dca_and_close()
-        #   return            
-
-        #elif self.active_position == "short" and updated_price >= sl_target:
-        #    self.dca_count += 1
-        #    self.dca_and_close()
-        #    return
         
         elif self.active_position == "short" and updated_price >= locked_tp and updated_price < self.tp_target:
             print(f"[EXIT] Short hit locked TP {locked_tp}, current price {updated_price}")
