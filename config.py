@@ -21,8 +21,8 @@ QUOTE_CURRENCY = "PI"
 ORDER_PERCENT = 0.12         # 12% of portfolio for initial entry
 DCA_PERCENT = 0.18           # 18% for DCA on SL trigger
 
-LONG_THRESHOLD = 0.30           # USDT must be > 30% of portfolio to open long
-SHORT_THRESHOLD = 0.30          # PI must be > 30% of portfolio to open short
+LONG_THRESHOLD = 0.50           # USDT must be > 30% of portfolio to open long
+SHORT_THRESHOLD = 0.50          # PI must be > 30% of portfolio to open short
 
 TP_DEFAULT = 0.005          # 0.5% TP
 SL_DEFAULT = -0.015           # -1.5% SL triggers DCA
